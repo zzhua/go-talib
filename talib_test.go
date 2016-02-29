@@ -362,9 +362,14 @@ func TestWillR(t *testing.T) {
 	result := WillR(testHigh, testLow, testClose, 9)
 	compare(t, result, "result = talib.WILLR(testHigh,testLow,testClose,9)")
 }
-*/
 
 func TestAdx(t *testing.T) {
 	result := Adx(testHigh, testLow, testClose, 14)
 	compare(t, result, "result = talib.ADX(testHigh,testLow,testClose,14)")
+}
+*/
+
+func TestAdxR(t *testing.T) {
+	result := AdxR(testHigh, testLow, testClose, 5)
+	compare(t, result, "result = talib.ADXR(testHigh,testLow,testClose,5)")
 }

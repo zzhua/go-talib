@@ -108,8 +108,6 @@ func Sma(inReal []float64, optInTimePeriod int) []float64 {
 
 /* Momentum Indicators
 TODO:
-  ADXR - Average Directional Movement Index Rating
-    real = ADXR(high, low, close, timeperiod=14)
   APO - Absolute Price Oscillator
     real = APO(close, fastperiod=12, slowperiod=26, matype=0)
   AROON - Aroon
@@ -284,6 +282,20 @@ func Adx(inHigh []float64, inLow []float64, inClose []float64, optInTimePeriod i
 		outReal[outIdx] = prevADX
 		outIdx++
 		today++
+	}
+	return outReal
+}
+
+// AdxR - Average Directional Movement Index Rating
+func AdxR(inHigh []float64, inLow []float64, inClose []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inClose))
+	startIdx := (2 * optInTimePeriod) - 1
+	tmpadx := Adx(inHigh, inLow, inClose, optInTimePeriod)
+	i := startIdx
+	j := startIdx + optInTimePeriod - 1
+	for outIdx := startIdx + optInTimePeriod - 1; outIdx < len(inClose); outIdx, i, j = outIdx+1, i+1, j+1 {
+		outReal[outIdx] = ((tmpadx[i] + tmpadx[j]) / 2.0)
 	}
 	return outReal
 }

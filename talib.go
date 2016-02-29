@@ -3,7 +3,9 @@
 // Copyright (c) 2016 Mark Chenoweth, mark@cheno.net
 package talib
 
-import "math"
+import (
+	"math"
+)
 
 /* Overlap Studies
 TODO:
@@ -106,8 +108,6 @@ func Sma(inReal []float64, optInTimePeriod int) []float64 {
 
 /* Momentum Indicators
 TODO:
-  ADX - Average Directional Movement Index
-    real = ADX(high, low, close, timeperiod=14)
   ADXR - Average Directional Movement Index Rating
     real = ADXR(high, low, close, timeperiod=14)
   APO - Absolute Price Oscillator
@@ -161,6 +161,132 @@ TODO:
   ULTOSC - Ultimate Oscillator
     real = ULTOSC(high, low, close, timeperiod1=7, timeperiod2=14, timeperiod3=28)
 */
+
+// Adx - Average Directional Movement Index
+func Adx(inHigh []float64, inLow []float64, inClose []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inClose))
+
+	optInTimePeriodF := float64(optInTimePeriod)
+	lookbackTotal := (2 * optInTimePeriod) - 1
+	startIdx := lookbackTotal
+	outIdx := optInTimePeriod
+	prevMinusDM := 0.0
+	prevPlusDM := 0.0
+	prevTR := 0.0
+	today := startIdx - lookbackTotal
+	prevHigh := inHigh[today]
+	prevLow := inLow[today]
+	prevClose := inClose[today]
+	for i := optInTimePeriod - 1; i > 0; i-- {
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		if (diffM > 0) && (diffP < diffM) {
+			prevMinusDM += diffM
+		} else if (diffP > 0) && (diffP > diffM) {
+			prevPlusDM += diffP
+		}
+		tempReal = prevHigh - prevLow
+		tempReal2 := math.Abs(prevHigh - prevClose)
+		if tempReal2 > tempReal {
+			tempReal = tempReal2
+		}
+		tempReal2 = math.Abs(prevLow - prevClose)
+		if tempReal2 > tempReal {
+			tempReal = tempReal2
+		}
+
+		prevTR += tempReal
+		prevClose = inClose[today]
+	}
+	sumDX := 0.0
+	for i := optInTimePeriod; i > 0; i-- {
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		prevMinusDM -= prevMinusDM / optInTimePeriodF
+		prevPlusDM -= prevPlusDM / optInTimePeriodF
+		if (diffM > 0) && (diffP < diffM) {
+			prevMinusDM += diffM
+		} else if (diffP > 0) && (diffP > diffM) {
+			prevPlusDM += diffP
+		}
+		tempReal = prevHigh - prevLow
+		tempReal2 := math.Abs(prevHigh - prevClose)
+		if tempReal2 > tempReal {
+			tempReal = tempReal2
+		}
+		tempReal2 = math.Abs(prevLow - prevClose)
+		if tempReal2 > tempReal {
+			tempReal = tempReal2
+		}
+
+		prevTR = prevTR - (prevTR / optInTimePeriodF) + tempReal
+		prevClose = inClose[today]
+		if !(((-(0.00000000000001)) < prevTR) && (prevTR < (0.00000000000001))) {
+			minusDI := (100.0 * (prevMinusDM / prevTR))
+			plusDI := (100.0 * (prevPlusDM / prevTR))
+			tempReal = minusDI + plusDI
+			if !(((-(0.00000000000001)) < tempReal) && (tempReal < (0.00000000000001))) {
+				sumDX += (100.0 * (math.Abs(minusDI-plusDI) / tempReal))
+			}
+		}
+	}
+	prevADX := (sumDX / optInTimePeriodF)
+
+	outReal[startIdx] = prevADX
+	outIdx = startIdx + 1
+	today++
+	for today < len(inClose) {
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		prevMinusDM -= prevMinusDM / optInTimePeriodF
+		prevPlusDM -= prevPlusDM / optInTimePeriodF
+		if (diffM > 0) && (diffP < diffM) {
+			prevMinusDM += diffM
+		} else if (diffP > 0) && (diffP > diffM) {
+			prevPlusDM += diffP
+		}
+		tempReal = prevHigh - prevLow
+		tempReal2 := math.Abs(prevHigh - prevClose)
+		if tempReal2 > tempReal {
+			tempReal = tempReal2
+		}
+		tempReal2 = math.Abs(prevLow - prevClose)
+		if tempReal2 > tempReal {
+			tempReal = tempReal2
+		}
+
+		prevTR = prevTR - (prevTR / optInTimePeriodF) + tempReal
+		prevClose = inClose[today]
+		if !(((-(0.00000000000001)) < prevTR) && (prevTR < (0.00000000000001))) {
+			minusDI := (100.0 * (prevMinusDM / prevTR))
+			plusDI := (100.0 * (prevPlusDM / prevTR))
+			tempReal = minusDI + plusDI
+			if !(((-(0.00000000000001)) < tempReal) && (tempReal < (0.00000000000001))) {
+				tempReal = (100.0 * (math.Abs(minusDI-plusDI) / tempReal))
+				prevADX = (((prevADX * (optInTimePeriodF - 1)) + tempReal) / optInTimePeriodF)
+			}
+		}
+		outReal[outIdx] = prevADX
+		outIdx++
+		today++
+	}
+	return outReal
+}
 
 // Rocp - Rate of change Percentage: (price-prevPrice)/prevPrice
 func Rocp(inReal []float64, optInTimePeriod int) []float64 {

@@ -356,8 +356,15 @@ func TestHtTrendMode(t *testing.T) {
 	result := HtTrendMode(testClose)
 	compare(t, result, "result = talib.HT_TRENDMODE(testClose)")
 }
-*/
+
+
 func TestWillR(t *testing.T) {
 	result := WillR(testHigh, testLow, testClose, 9)
 	compare(t, result, "result = talib.WILLR(testHigh,testLow,testClose,9)")
+}
+*/
+
+func TestAdx(t *testing.T) {
+	result := Adx(testHigh, testLow, testClose, 14)
+	compare(t, result, "result = talib.ADX(testHigh,testLow,testClose,14)")
 }

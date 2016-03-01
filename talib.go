@@ -1,7 +1,8 @@
-// Package talib is a pure Go port of <a href=http://ta-lib.org>TaLib</a> Technical Analysis Library
+// Package talib is a pure Go port of TaLib (http://ta-lib.org) Technical Analysis Library
+package talib
+
 // Licensed under terms of MIT license (see LICENSE)
 // Copyright (c) 2016 Mark Chenoweth, mark@cheno.net
-package talib
 
 import (
 	"math"

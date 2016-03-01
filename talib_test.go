@@ -367,9 +367,35 @@ func TestAdx(t *testing.T) {
 	result := Adx(testHigh, testLow, testClose, 14)
 	compare(t, result, "result = talib.ADX(testHigh,testLow,testClose,14)")
 }
-*/
 
 func TestAdxR(t *testing.T) {
 	result := AdxR(testHigh, testLow, testClose, 5)
 	compare(t, result, "result = talib.ADXR(testHigh,testLow,testClose,5)")
+}
+
+func TestCci(t *testing.T) {
+	result := Cci(testHigh, testLow, testClose, 14)
+	compare(t, result, "result = talib.CCI(testHigh,testLow,testClose,14)")
+}
+
+func TestRoc(t *testing.T) {
+	result := Roc(testClose, 10)
+	compare(t, result, "result = talib.ROC(testClose,10)")
+}
+
+func TestRocr(t *testing.T) {
+	result := Rocr(testClose, 10)
+	compare(t, result, "result = talib.ROCR(testClose,10)")
+}
+
+func TestRocr100(t *testing.T) {
+	result := Rocr100(testClose, 10)
+	compare(t, result, "result = talib.ROCR100(testClose,10)")
+}
+
+*/
+
+func TestMom(t *testing.T) {
+	result := Mom(testClose, 10)
+	compare(t, result, "result = talib.MOM(testClose,10)")
 }

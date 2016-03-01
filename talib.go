@@ -116,8 +116,6 @@ TODO:
     real = AROONOSC(high, low, timeperiod=14)
   BOP - Balance Of Power
     real = BOP(open, high, low, close)
-  CCI - Commodity Channel Index
-    real = CCI(high, low, close, timeperiod=14)
   CMO - Chande Momentum Oscillator
     real = CMO(close, timeperiod=14)
   DX - Directional Movement Index
@@ -134,20 +132,12 @@ TODO:
     real = MINUS_DI(high, low, close, timeperiod=14)
   MINUS_DM - Minus Directional Movement
     real = MINUS_DM(high, low, timeperiod=14)
-  MOM - Momentum
-    real = MOM(close, timeperiod=10)
   PLUS_DI - Plus Directional Indicator
     real = PLUS_DI(high, low, close, timeperiod=14)
   PLUS_DM - Plus Directional Movement
     real = PLUS_DM(high, low, timeperiod=14)
   PPO - Percentage Price Oscillator
     real = PPO(close, fastperiod=12, slowperiod=26, matype=0)
-  ROC - Rate of change : ((price/prevPrice)-1)*100
-    real = ROC(close, timeperiod=10)
-  ROCR - Rate of change ratio: (price/prevPrice)
-    real = ROCR(close, timeperiod=10)
-  ROCR100 - Rate of change ratio 100 scale: (price/prevPrice)*100
-    real = ROCR100(close, timeperiod=10)
   STOCH - Stochastic
     slowk, slowd = STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
   STOCHF - Stochastic Fast
@@ -300,6 +290,75 @@ func AdxR(inHigh []float64, inLow []float64, inClose []float64, optInTimePeriod 
 	return outReal
 }
 
+// Cci - Commodity Channel Index
+func Cci(inHigh []float64, inLow []float64, inClose []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inClose))
+
+	circBufferIdx := 0
+	lookbackTotal := optInTimePeriod - 1
+	startIdx := lookbackTotal
+	circBuffer := make([]float64, optInTimePeriod)
+	maxIdxCircBuffer := (optInTimePeriod - 1)
+	i := startIdx - lookbackTotal
+	if optInTimePeriod > 1 {
+		for i < startIdx {
+			circBuffer[circBufferIdx] = (inHigh[i] + inLow[i] + inClose[i]) / 3
+			i++
+			circBufferIdx++
+			if circBufferIdx > maxIdxCircBuffer {
+				circBufferIdx = 0
+			}
+
+		}
+	}
+	outIdx := optInTimePeriod - 1
+	for i < len(inClose) {
+		lastValue := (inHigh[i] + inLow[i] + inClose[i]) / 3
+		circBuffer[circBufferIdx] = lastValue
+		theAverage := 0.0
+		for j := 0; j < optInTimePeriod; j++ {
+			theAverage += circBuffer[j]
+		}
+
+		theAverage /= float64(optInTimePeriod)
+		tempReal2 := 0.0
+		for j := 0; j < optInTimePeriod; j++ {
+			tempReal2 += math.Abs(circBuffer[j] - theAverage)
+		}
+		tempReal := lastValue - theAverage
+		if (tempReal != 0.0) && (tempReal2 != 0.0) {
+			outReal[outIdx] = tempReal / (0.015 * (tempReal2 / float64(optInTimePeriod)))
+		} else {
+			outReal[outIdx] = 0.0
+		}
+		{
+			circBufferIdx++
+			if circBufferIdx > maxIdxCircBuffer {
+				circBufferIdx = 0
+			}
+		}
+		outIdx++
+		i++
+	}
+
+	return outReal
+}
+
+// Mom - Momentum
+func Mom(inReal []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inReal))
+
+	inIdx, outIdx, trailingIdx := optInTimePeriod, optInTimePeriod, 0
+	for inIdx < len(inReal) {
+		outReal[outIdx] = inReal[inIdx] - inReal[trailingIdx]
+		inIdx, outIdx, trailingIdx = inIdx+1, outIdx+1, trailingIdx+1
+	}
+
+	return outReal
+}
+
 // Rocp - Rate of change Percentage: (price-prevPrice)/prevPrice
 func Rocp(inReal []float64, optInTimePeriod int) []float64 {
 
@@ -325,6 +384,78 @@ func Rocp(inReal []float64, optInTimePeriod int) []float64 {
 		inIdx++
 	}
 
+	return outReal
+}
+
+// Roc - Rate of change : ((price/prevPrice)-1)*100
+func Roc(inReal []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inReal))
+
+	startIdx := optInTimePeriod
+	outIdx := optInTimePeriod
+	inIdx := startIdx
+	trailingIdx := startIdx - optInTimePeriod
+
+	for inIdx < len(inReal) {
+		tempReal := inReal[trailingIdx]
+		if tempReal != 0.0 {
+			outReal[outIdx] = ((inReal[inIdx] / tempReal) - 1.0) * 100.0
+		} else {
+			outReal[outIdx] = 0.0
+		}
+		trailingIdx++
+		outIdx++
+		inIdx++
+	}
+	return outReal
+}
+
+// Rocr - Rate of change ratio: (price/prevPrice)
+func Rocr(inReal []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inReal))
+
+	startIdx := optInTimePeriod
+	outIdx := optInTimePeriod
+	inIdx := startIdx
+	trailingIdx := startIdx - optInTimePeriod
+
+	for inIdx < len(inReal) {
+		tempReal := inReal[trailingIdx]
+		if tempReal != 0.0 {
+			outReal[outIdx] = (inReal[inIdx] / tempReal)
+		} else {
+			outReal[outIdx] = 0.0
+		}
+		trailingIdx++
+		outIdx++
+		inIdx++
+	}
+	return outReal
+}
+
+// Rocr100 - Rate of change ratio 100 scale: (price/prevPrice)*100
+func Rocr100(inReal []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inReal))
+
+	startIdx := optInTimePeriod
+	outIdx := optInTimePeriod
+	inIdx := startIdx
+	trailingIdx := startIdx - optInTimePeriod
+
+	for inIdx < len(inReal) {
+		tempReal := inReal[trailingIdx]
+		if tempReal != 0.0 {
+			outReal[outIdx] = (inReal[inIdx] / tempReal) * 100.0
+		} else {
+			outReal[outIdx] = 0.0
+		}
+		trailingIdx++
+		outIdx++
+		inIdx++
+	}
 	return outReal
 }
 

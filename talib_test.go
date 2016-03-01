@@ -92,7 +92,7 @@ func TestMain(m *testing.M) {
 }
 
 // Test all the functions
-/*
+
 func TestSma(t *testing.T) {
 	result := Sma(testClose, 20)
 	compare(t, result, "result = talib.SMA(testClose,20)")
@@ -357,7 +357,6 @@ func TestHtTrendMode(t *testing.T) {
 	compare(t, result, "result = talib.HT_TRENDMODE(testClose)")
 }
 
-
 func TestWillR(t *testing.T) {
 	result := WillR(testHigh, testLow, testClose, 9)
 	compare(t, result, "result = talib.WILLR(testHigh,testLow,testClose,9)")
@@ -392,8 +391,6 @@ func TestRocr100(t *testing.T) {
 	result := Rocr100(testClose, 10)
 	compare(t, result, "result = talib.ROCR100(testClose,10)")
 }
-
-*/
 
 func TestMom(t *testing.T) {
 	result := Mom(testClose, 10)

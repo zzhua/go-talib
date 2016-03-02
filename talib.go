@@ -1,8 +1,10 @@
+/*
+Copyright 2016 Mark Chenoweth
+Licensed under terms of MIT license (see LICENSE)
+*/
+
 // Package talib is a pure Go port of TA-Lib (http://ta-lib.org) Technical Analysis Library
 package talib
-
-// Licensed under terms of MIT license (see LICENSE)
-// Copyright (c) 2016 Mark Chenoweth, mark@cheno.net
 
 import (
 	"math"

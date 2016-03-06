@@ -92,7 +92,7 @@ func TestMain(m *testing.M) {
 }
 
 // Test all the functions
-
+/*
 func TestSma(t *testing.T) {
 	result := Sma(testClose, 20)
 	compare(t, result, "result = talib.SMA(testClose,20)")
@@ -396,3 +396,17 @@ func TestMom(t *testing.T) {
 	result := Mom(testClose, 10)
 	compare(t, result, "result = talib.MOM(testClose,10)")
 }
+
+func TestBBands(t *testing.T) {
+	upper,middle,lower := BBands(testClose,5,2.0,2.0,SMA)
+	compare(t, upper, "result,upper,lower = talib.BBANDS(testClose,5,2.0,2.0)")
+	compare(t, middle, "upper,result,lower = talib.BBANDS(testClose,5,2.0,2.0)")
+	compare(t, lower, "upper,middle,result = talib.BBANDS(testClose,5,2.0,2.0)")
+}
+*/
+
+func TestDema(t *testing.T) {
+	result := Dema(testClose, 10)
+	compare(t, result, "result = talib.DEMA(testClose,10)")
+}
+

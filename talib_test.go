@@ -403,10 +403,20 @@ func TestBBands(t *testing.T) {
 	compare(t, middle, "upper,result,lower = talib.BBANDS(testClose,5,2.0,2.0)")
 	compare(t, lower, "upper,middle,result = talib.BBANDS(testClose,5,2.0,2.0)")
 }
-*/
 
 func TestDema(t *testing.T) {
 	result := Dema(testClose, 10)
 	compare(t, result, "result = talib.DEMA(testClose,10)")
 }
 
+func TestTema(t *testing.T) {
+	result := Tema(testClose, 10)
+	compare(t, result, "result = talib.TEMA(testClose,10)")
+}
+
+*/
+
+func TestWma(t *testing.T) {
+	result := Wma(testClose, 10)
+	compare(t, result, "result = talib.WMA(testClose,10)")
+}

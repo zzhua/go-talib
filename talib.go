@@ -44,12 +44,8 @@ TODO:
     real = SAREXT(high, low, startvalue=0, offsetonreverse=0, accelerationinitlong=0, accelerationlong=0, accelerationmaxlong=0, accelerationinitshort=0, accelerationshort=0, accelerationmaxshort=0)
   T3 - Triple Exponential Moving Average (T3)
     real = T3(close, timeperiod=5, vfactor=0)
-  TEMA - Triple Exponential Moving Average
-    real = TEMA(close, timeperiod=30)
   TRIMA - Triangular Moving Average
     real = TRIMA(close, timeperiod=30)
-  WMA - Weighted Moving Average
-    real = WMA(close, timeperiod=30)
 */
 
 func movingAverage(inReal []float64,optInTimePeriod int,optInMAType MaType) []float64 {
@@ -66,12 +62,12 @@ func movingAverage(inReal []float64,optInTimePeriod int,optInMAType MaType) []fl
     outReal = Sma(inReal, optInTimePeriod)
   case EMA:
     outReal = Ema(inReal, optInTimePeriod)
-//  case WMA:
-//    outReal = Wma(inReal, optInTimePeriod)
+  case WMA:
+    outReal = Wma(inReal, optInTimePeriod)
   case DEMA:
     outReal =  Dema(inReal, optInTimePeriod)
-//  case TEMA:
-//    outReal =  Tema(inReal, optInTimePeriod)
+  case TEMA:
+    outReal =  Tema(inReal, optInTimePeriod)
 //  case TRIMA:
 //    outReal =  Trima(inReal, optInTimePeriod)
 //  case KAMA:
@@ -452,6 +448,71 @@ func Sma(inReal []float64, optInTimePeriod int) []float64 {
 
 	return outReal
 }
+
+// Tema - Triple Exponential Moving Average
+func Tema(inReal []float64,optInTimePeriod int) []float64 {
+
+  outReal := make([]float64,len(inReal))
+  firstEMA := Ema(inReal,optInTimePeriod)
+  secondEMA := Ema(firstEMA[optInTimePeriod-1:],optInTimePeriod)
+  thirdEMA := Ema(secondEMA[optInTimePeriod-1:],optInTimePeriod)
+
+  outIdx := (optInTimePeriod*3)-3
+  secondEMAIdx := (optInTimePeriod*2)-2
+  thirdEMAIdx := optInTimePeriod-1
+
+  for outIdx < len(inReal) {
+    outReal[outIdx] = thirdEMA[thirdEMAIdx] + ((3.0 * firstEMA[outIdx]) - (3.0 * secondEMA[secondEMAIdx]))
+    outIdx++
+    secondEMAIdx++
+    thirdEMAIdx++
+  }
+
+  return outReal
+}
+
+// Wma - Weighted Moving Average
+func Wma(inReal []float64,optInTimePeriod int) []float64 {
+  
+  outReal := make([]float64,len(inReal))
+  
+  lookbackTotal := optInTimePeriod - 1
+  startIdx := lookbackTotal
+
+  if optInTimePeriod == 1 {
+    copy(outReal,inReal)
+    return outReal
+  }
+  divider := (optInTimePeriod * (optInTimePeriod + 1)) >> 1
+  outIdx := optInTimePeriod-1
+  trailingIdx := startIdx - lookbackTotal
+  periodSum,periodSub := 0.0,0.0
+  inIdx := trailingIdx
+  i := 1
+  for inIdx < startIdx {
+    tempReal := inReal[inIdx]
+    periodSub += tempReal
+    periodSum += tempReal * float64(i)
+    inIdx++
+    i++
+  }
+  trailingValue := 0.0;
+  for inIdx < len(inReal) {
+    tempReal := inReal[inIdx]
+    periodSub += tempReal
+    periodSub -= trailingValue
+    periodSum += tempReal * float64(optInTimePeriod)
+    trailingValue = inReal[trailingIdx]
+    outReal[outIdx] = periodSum / float64(divider)
+    periodSum -= periodSub
+    inIdx++
+    trailingIdx++
+    outIdx++
+  }
+  return outReal
+}
+
+
 
 /* Momentum Indicators
 TODO:

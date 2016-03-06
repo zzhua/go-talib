@@ -398,3 +398,38 @@ func TestMom(t *testing.T) {
 	result := Mom(testClose, 10)
 	compare(t, result, "result = talib.MOM(testClose,10)")
 }
+
+func TestBBands(t *testing.T) {
+	upper,middle,lower := BBands(testClose,5,2.0,2.0,SMA)
+	compare(t, upper, "result,upper,lower = talib.BBANDS(testClose,5,2.0,2.0)")
+	compare(t, middle, "upper,result,lower = talib.BBANDS(testClose,5,2.0,2.0)")
+	compare(t, lower, "upper,middle,result = talib.BBANDS(testClose,5,2.0,2.0)")
+}
+
+func TestDema(t *testing.T) {
+	result := Dema(testClose, 10)
+	compare(t, result, "result = talib.DEMA(testClose,10)")
+}
+
+func TestTema(t *testing.T) {
+	result := Tema(testClose, 10)
+	compare(t, result, "result = talib.TEMA(testClose,10)")
+}
+
+func TestWma(t *testing.T) {
+	result := Wma(testClose, 10)
+	compare(t, result, "result = talib.WMA(testClose,10)")
+}
+
+func TestMA(t *testing.T) {
+	result := MA(testClose, 10, DEMA)
+	compare(t, result, "result = talib.MA(testClose,10,talib.MA_Type.DEMA)")
+}
+
+func TestTrima(t *testing.T) {
+	result := Trima(testClose, 10)
+	compare(t, result, "result = talib.TRIMA(testClose,10)")
+	result = Trima(testClose, 11)
+	compare(t, result, "result = talib.TRIMA(testClose,11)")
+}
+

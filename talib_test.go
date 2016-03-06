@@ -92,7 +92,7 @@ func TestMain(m *testing.M) {
 }
 
 // Test all the functions
-/*
+
 func TestSma(t *testing.T) {
 	result := Sma(testClose, 20)
 	compare(t, result, "result = talib.SMA(testClose,20)")
@@ -423,8 +423,6 @@ func TestMA(t *testing.T) {
 	result := MA(testClose, 10, DEMA)
 	compare(t, result, "result = talib.MA(testClose,10,talib.MA_Type.DEMA)")
 }
-
-*/
 
 func TestTrima(t *testing.T) {
 	result := Trima(testClose, 10)

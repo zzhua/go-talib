@@ -34,10 +34,6 @@ TODO:
     mama, fama = MAMA(close, fastlimit=0, slowlimit=0)
   MAVP - Moving average with variable period
     real = MAVP(close, periods, minperiod=2, maxperiod=30, matype=0)
-  MIDPOINT - MidPoint over period
-    real = MIDPOINT(close, timeperiod=14)
-  MIDPRICE - Midpoint Price over period
-    real = MIDPRICE(high, low, timeperiod=14)
   SAR - Parabolic SAR
     real = SAR(high, low, acceleration=0, maximum=0)
   SAREXT - Parabolic SAR - Extended
@@ -45,40 +41,6 @@ TODO:
   T3 - Triple Exponential Moving Average (T3)
     real = T3(close, timeperiod=5, vfactor=0)
 */
-
-// MA - Moving average
-func MA(inReal []float64,optInTimePeriod int,optInMAType MaType) []float64 {
-
-  outReal := make([]float64,len(inReal))
-
-  if optInTimePeriod == 1 {
-    copy(outReal,inReal)
-    return outReal
-  }
-  
-  switch optInMAType {
-  case SMA:
-    outReal = Sma(inReal, optInTimePeriod)
-  case EMA:
-    outReal = Ema(inReal, optInTimePeriod)
-  case WMA:
-    outReal = Wma(inReal, optInTimePeriod)
-  case DEMA:
-    outReal =  Dema(inReal, optInTimePeriod)
-  case TEMA:
-    outReal =  Tema(inReal, optInTimePeriod)
-  case TRIMA:
-    outReal =  Trima(inReal, optInTimePeriod)
-//  case KAMA:
-//    outReal =  Kama(inReal, optInTimePeriod)
-//  case MAMA:
-//    outReal = Mama(inReal, 0.5, 0.05)
-//  case T3:
-//    outReal = T3(startIdx, endIdx, inReal,optInTimePeriod, 0.7)
-  }
-  return outReal
-}
-
 
 // BBands - Bollinger Bands
 // upperband, middleband, lowerband = BBANDS(close, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
@@ -417,6 +379,99 @@ func HtTrendline(inReal []float64) []float64 {
 	return outReal
 }
 
+// MA - Moving average
+func MA(inReal []float64,optInTimePeriod int,optInMAType MaType) []float64 {
+
+  outReal := make([]float64,len(inReal))
+
+  if optInTimePeriod == 1 {
+    copy(outReal,inReal)
+    return outReal
+  }
+  
+  switch optInMAType {
+  case SMA:
+    outReal = Sma(inReal, optInTimePeriod)
+  case EMA:
+    outReal = Ema(inReal, optInTimePeriod)
+  case WMA:
+    outReal = Wma(inReal, optInTimePeriod)
+  case DEMA:
+    outReal =  Dema(inReal, optInTimePeriod)
+  case TEMA:
+    outReal =  Tema(inReal, optInTimePeriod)
+  case TRIMA:
+    outReal =  Trima(inReal, optInTimePeriod)
+//  case KAMA:
+//    outReal =  Kama(inReal, optInTimePeriod)
+//  case MAMA:
+//    outReal = Mama(inReal, 0.5, 0.05)
+//  case T3:
+//    outReal = T3(startIdx, endIdx, inReal,optInTimePeriod, 0.7)
+  }
+  return outReal
+}
+
+// MidPoint - MidPoint over period
+func MidPoint(inReal []float64,optInTimePeriod int) []float64 {
+
+  outReal := make([]float64,len(inReal))
+  nbInitialElementNeeded := optInTimePeriod - 1
+  startIdx := nbInitialElementNeeded
+  outIdx := optInTimePeriod-1
+  today := startIdx
+  trailingIdx := startIdx - nbInitialElementNeeded
+  
+  for today < len(inReal) {
+    lowest := inReal[trailingIdx]
+    trailingIdx++
+    highest := lowest
+    for i := trailingIdx; i <= today; i++ {
+      tmp := inReal[i]
+      if  tmp < lowest {
+       lowest = tmp
+      } else if tmp > highest {
+        highest = tmp
+      }
+    }
+    outReal[outIdx] = (highest + lowest) / 2.0
+    outIdx++
+    today++
+  }
+  return outReal
+}
+
+// MidPrice - Midpoint Price over period
+func MidPrice(inHigh []float64,inLow []float64,optInTimePeriod int) []float64 {
+
+  outReal := make([]float64,len(inHigh))
+  
+  nbInitialElementNeeded := optInTimePeriod - 1
+  startIdx := nbInitialElementNeeded
+  outIdx := optInTimePeriod-1
+  today := startIdx
+  trailingIdx := startIdx - nbInitialElementNeeded
+  for today < len(inHigh) {
+    lowest := inLow[trailingIdx]
+    highest := inHigh[trailingIdx]
+    trailingIdx++
+    for i := trailingIdx; i <= today; i++ {
+      tmp := inLow[i]
+      if tmp < lowest {
+        lowest = tmp
+      } 
+      tmp = inHigh[i]
+      if tmp > highest { 
+        highest = tmp
+      }
+    }
+    outReal[outIdx] = (highest + lowest) / 2.0
+    outIdx++
+    today++
+  }
+  return outReal
+}
+
 // Sma - Simple Moving Average
 func Sma(inReal []float64, optInTimePeriod int) []float64 {
 
@@ -615,8 +670,6 @@ func Wma(inReal []float64,optInTimePeriod int) []float64 {
   }
   return outReal
 }
-
-
 
 /* Momentum Indicators
 TODO:

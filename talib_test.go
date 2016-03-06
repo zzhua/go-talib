@@ -419,9 +419,17 @@ func TestWma(t *testing.T) {
 	compare(t, result, "result = talib.WMA(testClose,10)")
 }
 
-*/
-
 func TestMA(t *testing.T) {
 	result := MA(testClose, 10, DEMA)
 	compare(t, result, "result = talib.MA(testClose,10,talib.MA_Type.DEMA)")
 }
+
+*/
+
+func TestTrima(t *testing.T) {
+	result := Trima(testClose, 10)
+	compare(t, result, "result = talib.TRIMA(testClose,10)")
+	result = Trima(testClose, 11)
+	compare(t, result, "result = talib.TRIMA(testClose,11)")
+}
+

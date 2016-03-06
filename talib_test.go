@@ -431,3 +431,12 @@ func TestTrima(t *testing.T) {
 	compare(t, result, "result = talib.TRIMA(testClose,11)")
 }
 
+func TestMidPoint(t *testing.T) {
+	result := MidPoint(testClose, 10)
+	compare(t, result, "result = talib.MIDPOINT(testClose,10)")
+}
+
+func TestMidPrice(t *testing.T) {
+	result := MidPrice(testHigh,testLow, 10)
+	compare(t, result, "result = talib.MIDPRICE(testHigh,testLow,10)")
+}

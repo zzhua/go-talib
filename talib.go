@@ -28,8 +28,6 @@ const (
 TODO:
   KAMA - Kaufman Adaptive Moving Average
     real = KAMA(close, timeperiod=30)
-  MA - Moving average
-    real = MA(close, timeperiod=30, matype=0)
   MAMA - MESA Adaptive Moving Average
     mama, fama = MAMA(close, fastlimit=0, slowlimit=0)
   MAVP - Moving average with variable period
@@ -48,7 +46,8 @@ TODO:
     real = TRIMA(close, timeperiod=30)
 */
 
-func movingAverage(inReal []float64,optInTimePeriod int,optInMAType MaType) []float64 {
+// MA - Moving average
+func MA(inReal []float64,optInTimePeriod int,optInMAType MaType) []float64 {
 
   outReal := make([]float64,len(inReal))
 
@@ -86,7 +85,7 @@ func movingAverage(inReal []float64,optInTimePeriod int,optInMAType MaType) []fl
 func BBands(inReal []float64,optInTimePeriod int,optInNbDevUp float64,optInNbDevDn float64,optInMAType MaType) ([]float64,[]float64,[]float64) {
 
   outRealUpperBand := make([]float64,len(inReal))
-  outRealMiddleBand := movingAverage(inReal,optInTimePeriod, optInMAType)
+  outRealMiddleBand := MA(inReal,optInTimePeriod, optInMAType)
   outRealLowerBand := make([]float64,len(inReal))
   
   tempBuffer2 := StdDev(inReal,optInTimePeriod, 1.0)

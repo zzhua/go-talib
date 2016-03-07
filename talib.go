@@ -13,97 +13,91 @@ type MaType int
 
 // Kinds of moving averages
 const (
-  SMA MaType = iota
-  EMA
-  WMA
-  DEMA
-  TEMA
-  TRIMA
-  KAMA
-  MAMA
-  T3 
+	SMA MaType = iota
+	EMA
+	WMA
+	DEMA
+	TEMA
+	TRIMA
+	KAMA
+	MAMA
+	T3MA
 )
 
 /* Overlap Studies
 TODO:
-  KAMA - Kaufman Adaptive Moving Average
-    real = KAMA(close, timeperiod=30)
   MAMA - MESA Adaptive Moving Average
     mama, fama = MAMA(close, fastlimit=0, slowlimit=0)
-  MAVP - Moving average with variable period
-    real = MAVP(close, periods, minperiod=2, maxperiod=30, matype=0)
   SAR - Parabolic SAR
     real = SAR(high, low, acceleration=0, maximum=0)
   SAREXT - Parabolic SAR - Extended
     real = SAREXT(high, low, startvalue=0, offsetonreverse=0, accelerationinitlong=0, accelerationlong=0, accelerationmaxlong=0, accelerationinitshort=0, accelerationshort=0, accelerationmaxshort=0)
-  T3 - Triple Exponential Moving Average (T3)
-    real = T3(close, timeperiod=5, vfactor=0)
 */
 
 // BBands - Bollinger Bands
-// upperband, middleband, lowerband = BBANDS(close, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
-func BBands(inReal []float64,optInTimePeriod int,optInNbDevUp float64,optInNbDevDn float64,optInMAType MaType) ([]float64,[]float64,[]float64) {
+// upperband, middleband, lowerband = BBands(close, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+func BBands(inReal []float64, optInTimePeriod int, optInNbDevUp float64, optInNbDevDn float64, optInMAType MaType) ([]float64, []float64, []float64) {
 
-  outRealUpperBand := make([]float64,len(inReal))
-  outRealMiddleBand := MA(inReal,optInTimePeriod, optInMAType)
-  outRealLowerBand := make([]float64,len(inReal))
-  
-  tempBuffer2 := StdDev(inReal,optInTimePeriod, 1.0)
-  
-  if optInNbDevUp == optInNbDevDn {
-            
-    if optInNbDevUp == 1.0 {
-      for i := 0; i < len(inReal); i++ {
-        tempReal := tempBuffer2[i]
-        tempReal2 := outRealMiddleBand[i]
-        outRealUpperBand[i] = tempReal2 + tempReal
-        outRealLowerBand[i] = tempReal2 - tempReal
-      }
-    } else {
-      for i := 0; i < len(inReal); i++ {
-        tempReal := tempBuffer2[i] * optInNbDevUp
-        tempReal2 := outRealMiddleBand[i]
-        outRealUpperBand[i] = tempReal2 + tempReal
-        outRealLowerBand[i] = tempReal2 - tempReal
-      }
-    }
-  } else if optInNbDevUp == 1.0 {
-    for i := 0; i < len(inReal); i++ {
-      tempReal := tempBuffer2[i]
-      tempReal2 := outRealMiddleBand[i]
-      outRealUpperBand[i] = tempReal2 + tempReal
-      outRealLowerBand[i] = tempReal2 - (tempReal * optInNbDevDn)
-    }
-  } else if (optInNbDevDn == 1.0) {
-    for i := 0; i < len(inReal); i++ {
-      tempReal := tempBuffer2[i]
-      tempReal2 := outRealMiddleBand[i]
-      outRealLowerBand[i] = tempReal2 - tempReal
-      outRealUpperBand[i] = tempReal2 + (tempReal * optInNbDevUp)
-    }
-  } else {
-    for i := 0; i < len(inReal); i++ {
-      tempReal := tempBuffer2[i]
-      tempReal2 := outRealMiddleBand[i]
-      outRealUpperBand[i] = tempReal2 + (tempReal * optInNbDevUp)
-      outRealLowerBand[i] = tempReal2 - (tempReal * optInNbDevDn)
-    }
-  }
-  return outRealUpperBand,outRealMiddleBand,outRealLowerBand
+	outRealUpperBand := make([]float64, len(inReal))
+	outRealMiddleBand := MA(inReal, optInTimePeriod, optInMAType)
+	outRealLowerBand := make([]float64, len(inReal))
+
+	tempBuffer2 := StdDev(inReal, optInTimePeriod, 1.0)
+
+	if optInNbDevUp == optInNbDevDn {
+
+		if optInNbDevUp == 1.0 {
+			for i := 0; i < len(inReal); i++ {
+				tempReal := tempBuffer2[i]
+				tempReal2 := outRealMiddleBand[i]
+				outRealUpperBand[i] = tempReal2 + tempReal
+				outRealLowerBand[i] = tempReal2 - tempReal
+			}
+		} else {
+			for i := 0; i < len(inReal); i++ {
+				tempReal := tempBuffer2[i] * optInNbDevUp
+				tempReal2 := outRealMiddleBand[i]
+				outRealUpperBand[i] = tempReal2 + tempReal
+				outRealLowerBand[i] = tempReal2 - tempReal
+			}
+		}
+	} else if optInNbDevUp == 1.0 {
+		for i := 0; i < len(inReal); i++ {
+			tempReal := tempBuffer2[i]
+			tempReal2 := outRealMiddleBand[i]
+			outRealUpperBand[i] = tempReal2 + tempReal
+			outRealLowerBand[i] = tempReal2 - (tempReal * optInNbDevDn)
+		}
+	} else if optInNbDevDn == 1.0 {
+		for i := 0; i < len(inReal); i++ {
+			tempReal := tempBuffer2[i]
+			tempReal2 := outRealMiddleBand[i]
+			outRealLowerBand[i] = tempReal2 - tempReal
+			outRealUpperBand[i] = tempReal2 + (tempReal * optInNbDevUp)
+		}
+	} else {
+		for i := 0; i < len(inReal); i++ {
+			tempReal := tempBuffer2[i]
+			tempReal2 := outRealMiddleBand[i]
+			outRealUpperBand[i] = tempReal2 + (tempReal * optInNbDevUp)
+			outRealLowerBand[i] = tempReal2 - (tempReal * optInNbDevDn)
+		}
+	}
+	return outRealUpperBand, outRealMiddleBand, outRealLowerBand
 }
 
 // Dema - Double Exponential Moving Average
-func Dema(inReal []float64,optInTimePeriod int) []float64 {
-        
-  outReal := make([]float64,len(inReal))
-  firstEMA := Ema(inReal,optInTimePeriod)
-  secondEMA := Ema(firstEMA[optInTimePeriod-1:],optInTimePeriod)
-  
-  for outIdx,secondEMAIdx := (optInTimePeriod*2)-2,optInTimePeriod-1; outIdx < len(inReal); outIdx,secondEMAIdx = outIdx+1,secondEMAIdx+1 {
-    outReal[outIdx] = (2.0 * firstEMA[outIdx]) - secondEMA[secondEMAIdx]
-  }
+func Dema(inReal []float64, optInTimePeriod int) []float64 {
 
-  return outReal
+	outReal := make([]float64, len(inReal))
+	firstEMA := Ema(inReal, optInTimePeriod)
+	secondEMA := Ema(firstEMA[optInTimePeriod-1:], optInTimePeriod)
+
+	for outIdx, secondEMAIdx := (optInTimePeriod*2)-2, optInTimePeriod-1; outIdx < len(inReal); outIdx, secondEMAIdx = outIdx+1, secondEMAIdx+1 {
+		outReal[outIdx] = (2.0 * firstEMA[outIdx]) - secondEMA[secondEMAIdx]
+	}
+
+	return outReal
 }
 
 // Ema - Exponential Moving Average
@@ -377,97 +371,210 @@ func HtTrendline(inReal []float64) []float64 {
 	return outReal
 }
 
+// Kama - Kaufman Adaptive Moving Average
+func Kama(inReal []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inReal))
+
+	constMax := 2.0 / (30.0 + 1.0)
+	constDiff := 2.0/(2.0+1.0) - constMax
+	lookbackTotal := optInTimePeriod
+	startIdx := lookbackTotal
+	sumROC1 := 0.0
+	today := startIdx - lookbackTotal
+	trailingIdx := today
+	i := optInTimePeriod
+	for i > 0 {
+		tempReal := inReal[today]
+		today++
+		tempReal -= inReal[today]
+		sumROC1 += math.Abs(tempReal)
+		i--
+	}
+	prevKAMA := inReal[today-1]
+	tempReal := inReal[today]
+	tempReal2 := inReal[trailingIdx]
+	trailingIdx++
+	periodROC := tempReal - tempReal2
+	trailingValue := tempReal2
+	if (sumROC1 <= periodROC) || (((-(0.00000000000001)) < sumROC1) && (sumROC1 < (0.00000000000001))) {
+		tempReal = 1.0
+	} else {
+		tempReal = math.Abs(periodROC / sumROC1)
+	}
+	tempReal = (tempReal * constDiff) + constMax
+	tempReal *= tempReal
+	prevKAMA = ((inReal[today] - prevKAMA) * tempReal) + prevKAMA
+	today++
+	for today <= startIdx {
+		tempReal = inReal[today]
+		tempReal2 = inReal[trailingIdx]
+		trailingIdx++
+		periodROC = tempReal - tempReal2
+		sumROC1 -= math.Abs(trailingValue - tempReal2)
+		sumROC1 += math.Abs(tempReal - inReal[today-1])
+		trailingValue = tempReal2
+		if (sumROC1 <= periodROC) || (((-(0.00000000000001)) < sumROC1) && (sumROC1 < (0.00000000000001))) {
+			tempReal = 1.0
+		} else {
+			tempReal = math.Abs(periodROC / sumROC1)
+		}
+		tempReal = (tempReal * constDiff) + constMax
+		tempReal *= tempReal
+		prevKAMA = ((inReal[today] - prevKAMA) * tempReal) + prevKAMA
+		today++
+	}
+	outReal[optInTimePeriod] = prevKAMA
+	outIdx := optInTimePeriod + 1
+	for today < len(inReal) {
+		tempReal = inReal[today]
+		tempReal2 = inReal[trailingIdx]
+		trailingIdx++
+		periodROC = tempReal - tempReal2
+		sumROC1 -= math.Abs(trailingValue - tempReal2)
+		sumROC1 += math.Abs(tempReal - inReal[today-1])
+		trailingValue = tempReal2
+		if (sumROC1 <= periodROC) || (((-(0.00000000000001)) < sumROC1) && (sumROC1 < (0.00000000000001))) {
+			tempReal = 1.0
+		} else {
+			tempReal = math.Abs(periodROC / sumROC1)
+		}
+		tempReal = (tempReal * constDiff) + constMax
+		tempReal *= tempReal
+		prevKAMA = ((inReal[today] - prevKAMA) * tempReal) + prevKAMA
+		today++
+		outReal[outIdx] = prevKAMA
+		outIdx++
+	}
+
+	return outReal
+}
+
 // MA - Moving average
-func MA(inReal []float64,optInTimePeriod int,optInMAType MaType) []float64 {
+func MA(inReal []float64, optInTimePeriod int, optInMAType MaType) []float64 {
 
-  outReal := make([]float64,len(inReal))
+	outReal := make([]float64, len(inReal))
 
-  if optInTimePeriod == 1 {
-    copy(outReal,inReal)
-    return outReal
-  }
-  
-  switch optInMAType {
-  case SMA:
-    outReal = Sma(inReal, optInTimePeriod)
-  case EMA:
-    outReal = Ema(inReal, optInTimePeriod)
-  case WMA:
-    outReal = Wma(inReal, optInTimePeriod)
-  case DEMA:
-    outReal =  Dema(inReal, optInTimePeriod)
-  case TEMA:
-    outReal =  Tema(inReal, optInTimePeriod)
-  case TRIMA:
-    outReal =  Trima(inReal, optInTimePeriod)
-//  case KAMA:
-//    outReal =  Kama(inReal, optInTimePeriod)
-//  case MAMA:
-//    outReal = Mama(inReal, 0.5, 0.05)
-//  case T3:
-//    outReal = T3(startIdx, endIdx, inReal,optInTimePeriod, 0.7)
-  }
-  return outReal
+	if optInTimePeriod == 1 {
+		copy(outReal, inReal)
+		return outReal
+	}
+
+	switch optInMAType {
+	case SMA:
+		outReal = Sma(inReal, optInTimePeriod)
+	case EMA:
+		outReal = Ema(inReal, optInTimePeriod)
+	case WMA:
+		outReal = Wma(inReal, optInTimePeriod)
+	case DEMA:
+		outReal = Dema(inReal, optInTimePeriod)
+	case TEMA:
+		outReal = Tema(inReal, optInTimePeriod)
+	case TRIMA:
+		outReal = Trima(inReal, optInTimePeriod)
+		//  case KAMA:
+		//    outReal =  Kama(inReal, optInTimePeriod)
+		//  case MAMA:
+		//    outReal = Mama(inReal, 0.5, 0.05)
+	case T3MA:
+		outReal = T3(inReal, optInTimePeriod, 0.7)
+	}
+	return outReal
+}
+
+// MaVp - Moving average with variable period
+func MaVp(inReal []float64, inPeriods []float64, optInMinPeriod int, optInMaxPeriod int, optInMAType MaType) []float64 {
+
+	outReal := make([]float64, len(inReal))
+	startIdx := optInMaxPeriod - 1
+	outputSize := len(inReal)
+
+	localPeriodArray := make([]float64, outputSize)
+	for i := startIdx; i < outputSize; i++ {
+		tempInt := int(inPeriods[i])
+		if tempInt < optInMinPeriod {
+			tempInt = optInMinPeriod
+		} else if tempInt > optInMaxPeriod {
+			tempInt = optInMaxPeriod
+		}
+		localPeriodArray[i] = float64(tempInt)
+	}
+
+	for i := startIdx; i < outputSize; i++ {
+		curPeriod := int(localPeriodArray[i])
+		if curPeriod != 0 {
+			localOutputArray := MA(inReal, curPeriod, optInMAType)
+			outReal[i] = localOutputArray[i]
+			for j := i + 1; j < outputSize; j++ {
+				if localPeriodArray[j] == float64(curPeriod) {
+					localPeriodArray[j] = 0
+					outReal[j] = localOutputArray[j]
+				}
+			}
+		}
+	}
+	return outReal
 }
 
 // MidPoint - MidPoint over period
-func MidPoint(inReal []float64,optInTimePeriod int) []float64 {
+func MidPoint(inReal []float64, optInTimePeriod int) []float64 {
 
-  outReal := make([]float64,len(inReal))
-  nbInitialElementNeeded := optInTimePeriod - 1
-  startIdx := nbInitialElementNeeded
-  outIdx := optInTimePeriod-1
-  today := startIdx
-  trailingIdx := startIdx - nbInitialElementNeeded
-  
-  for today < len(inReal) {
-    lowest := inReal[trailingIdx]
-    trailingIdx++
-    highest := lowest
-    for i := trailingIdx; i <= today; i++ {
-      tmp := inReal[i]
-      if  tmp < lowest {
-       lowest = tmp
-      } else if tmp > highest {
-        highest = tmp
-      }
-    }
-    outReal[outIdx] = (highest + lowest) / 2.0
-    outIdx++
-    today++
-  }
-  return outReal
+	outReal := make([]float64, len(inReal))
+	nbInitialElementNeeded := optInTimePeriod - 1
+	startIdx := nbInitialElementNeeded
+	outIdx := optInTimePeriod - 1
+	today := startIdx
+	trailingIdx := startIdx - nbInitialElementNeeded
+
+	for today < len(inReal) {
+		lowest := inReal[trailingIdx]
+		trailingIdx++
+		highest := lowest
+		for i := trailingIdx; i <= today; i++ {
+			tmp := inReal[i]
+			if tmp < lowest {
+				lowest = tmp
+			} else if tmp > highest {
+				highest = tmp
+			}
+		}
+		outReal[outIdx] = (highest + lowest) / 2.0
+		outIdx++
+		today++
+	}
+	return outReal
 }
 
 // MidPrice - Midpoint Price over period
-func MidPrice(inHigh []float64,inLow []float64,optInTimePeriod int) []float64 {
+func MidPrice(inHigh []float64, inLow []float64, optInTimePeriod int) []float64 {
 
-  outReal := make([]float64,len(inHigh))
-  
-  nbInitialElementNeeded := optInTimePeriod - 1
-  startIdx := nbInitialElementNeeded
-  outIdx := optInTimePeriod-1
-  today := startIdx
-  trailingIdx := startIdx - nbInitialElementNeeded
-  for today < len(inHigh) {
-    lowest := inLow[trailingIdx]
-    highest := inHigh[trailingIdx]
-    trailingIdx++
-    for i := trailingIdx; i <= today; i++ {
-      tmp := inLow[i]
-      if tmp < lowest {
-        lowest = tmp
-      } 
-      tmp = inHigh[i]
-      if tmp > highest { 
-        highest = tmp
-      }
-    }
-    outReal[outIdx] = (highest + lowest) / 2.0
-    outIdx++
-    today++
-  }
-  return outReal
+	outReal := make([]float64, len(inHigh))
+
+	nbInitialElementNeeded := optInTimePeriod - 1
+	startIdx := nbInitialElementNeeded
+	outIdx := optInTimePeriod - 1
+	today := startIdx
+	trailingIdx := startIdx - nbInitialElementNeeded
+	for today < len(inHigh) {
+		lowest := inLow[trailingIdx]
+		highest := inHigh[trailingIdx]
+		trailingIdx++
+		for i := trailingIdx; i <= today; i++ {
+			tmp := inLow[i]
+			if tmp < lowest {
+				lowest = tmp
+			}
+			tmp = inHigh[i]
+			if tmp > highest {
+				highest = tmp
+			}
+		}
+		outReal[outIdx] = (highest + lowest) / 2.0
+		outIdx++
+		today++
+	}
+	return outReal
 }
 
 // Sma - Simple Moving Average
@@ -501,172 +608,266 @@ func Sma(inReal []float64, optInTimePeriod int) []float64 {
 	return outReal
 }
 
+// T3 - Triple Exponential Moving Average (T3) (lookback=6*optInTimePeriod)
+func T3(inReal []float64, optInTimePeriod int, optInVFactor float64) []float64 {
+
+	outReal := make([]float64, len(inReal))
+
+	lookbackTotal := 6 * (optInTimePeriod - 1)
+	startIdx := lookbackTotal
+	today := startIdx - lookbackTotal
+	k := 2.0 / (float64(optInTimePeriod) + 1.0)
+	oneMinusK := 1.0 - k
+	tempReal := inReal[today]
+	today++
+	for i := optInTimePeriod - 1; i > 0; i-- {
+		tempReal += inReal[today]
+		today++
+	}
+	e1 := tempReal / float64(optInTimePeriod)
+	tempReal = e1
+	for i := optInTimePeriod - 1; i > 0; i-- {
+		e1 = (k * inReal[today]) + (oneMinusK * e1)
+		tempReal += e1
+		today++
+	}
+	e2 := tempReal / float64(optInTimePeriod)
+	tempReal = e2
+	for i := optInTimePeriod - 1; i > 0; i-- {
+		e1 = (k * inReal[today]) + (oneMinusK * e1)
+		e2 = (k * e1) + (oneMinusK * e2)
+		tempReal += e2
+		today++
+	}
+	e3 := tempReal / float64(optInTimePeriod)
+	tempReal = e3
+	for i := optInTimePeriod - 1; i > 0; i-- {
+		e1 = (k * inReal[today]) + (oneMinusK * e1)
+		e2 = (k * e1) + (oneMinusK * e2)
+		e3 = (k * e2) + (oneMinusK * e3)
+		tempReal += e3
+		today++
+	}
+	e4 := tempReal / float64(optInTimePeriod)
+	tempReal = e4
+	for i := optInTimePeriod - 1; i > 0; i-- {
+		e1 = (k * inReal[today]) + (oneMinusK * e1)
+		e2 = (k * e1) + (oneMinusK * e2)
+		e3 = (k * e2) + (oneMinusK * e3)
+		e4 = (k * e3) + (oneMinusK * e4)
+		tempReal += e4
+		today++
+	}
+	e5 := tempReal / float64(optInTimePeriod)
+	tempReal = e5
+	for i := optInTimePeriod - 1; i > 0; i-- {
+		e1 = (k * inReal[today]) + (oneMinusK * e1)
+		e2 = (k * e1) + (oneMinusK * e2)
+		e3 = (k * e2) + (oneMinusK * e3)
+		e4 = (k * e3) + (oneMinusK * e4)
+		e5 = (k * e4) + (oneMinusK * e5)
+		tempReal += e5
+		today++
+	}
+	e6 := tempReal / float64(optInTimePeriod)
+	for today <= startIdx {
+		e1 = (k * inReal[today]) + (oneMinusK * e1)
+		e2 = (k * e1) + (oneMinusK * e2)
+		e3 = (k * e2) + (oneMinusK * e3)
+		e4 = (k * e3) + (oneMinusK * e4)
+		e5 = (k * e4) + (oneMinusK * e5)
+		e6 = (k * e5) + (oneMinusK * e6)
+		today++
+	}
+	tempReal = optInVFactor * optInVFactor
+	c1 := -(tempReal * optInVFactor)
+	c2 := 3.0 * (tempReal - c1)
+	c3 := -6.0*tempReal - 3.0*(optInVFactor-c1)
+	c4 := 1.0 + 3.0*optInVFactor - c1 + 3.0*tempReal
+	outIdx := lookbackTotal
+	outReal[outIdx] = c1*e6 + c2*e5 + c3*e4 + c4*e3
+	outIdx++
+	for today < len(inReal) {
+		e1 = (k * inReal[today]) + (oneMinusK * e1)
+		e2 = (k * e1) + (oneMinusK * e2)
+		e3 = (k * e2) + (oneMinusK * e3)
+		e4 = (k * e3) + (oneMinusK * e4)
+		e5 = (k * e4) + (oneMinusK * e5)
+		e6 = (k * e5) + (oneMinusK * e6)
+		outReal[outIdx] = c1*e6 + c2*e5 + c3*e4 + c4*e3
+		outIdx++
+		today++
+	}
+
+	return outReal
+}
+
 // Tema - Triple Exponential Moving Average
-func Tema(inReal []float64,optInTimePeriod int) []float64 {
+func Tema(inReal []float64, optInTimePeriod int) []float64 {
 
-  outReal := make([]float64,len(inReal))
-  firstEMA := Ema(inReal,optInTimePeriod)
-  secondEMA := Ema(firstEMA[optInTimePeriod-1:],optInTimePeriod)
-  thirdEMA := Ema(secondEMA[optInTimePeriod-1:],optInTimePeriod)
+	outReal := make([]float64, len(inReal))
+	firstEMA := Ema(inReal, optInTimePeriod)
+	secondEMA := Ema(firstEMA[optInTimePeriod-1:], optInTimePeriod)
+	thirdEMA := Ema(secondEMA[optInTimePeriod-1:], optInTimePeriod)
 
-  outIdx := (optInTimePeriod*3)-3
-  secondEMAIdx := (optInTimePeriod*2)-2
-  thirdEMAIdx := optInTimePeriod-1
+	outIdx := (optInTimePeriod * 3) - 3
+	secondEMAIdx := (optInTimePeriod * 2) - 2
+	thirdEMAIdx := optInTimePeriod - 1
 
-  for outIdx < len(inReal) {
-    outReal[outIdx] = thirdEMA[thirdEMAIdx] + ((3.0 * firstEMA[outIdx]) - (3.0 * secondEMA[secondEMAIdx]))
-    outIdx++
-    secondEMAIdx++
-    thirdEMAIdx++
-  }
+	for outIdx < len(inReal) {
+		outReal[outIdx] = thirdEMA[thirdEMAIdx] + ((3.0 * firstEMA[outIdx]) - (3.0 * secondEMA[secondEMAIdx]))
+		outIdx++
+		secondEMAIdx++
+		thirdEMAIdx++
+	}
 
-  return outReal
+	return outReal
 }
 
 // Trima - Triangular Moving Average
-func Trima(inReal []float64,optInTimePeriod int) []float64 {
-  
-  outReal := make([]float64,len(inReal))
-        
-  lookbackTotal := optInTimePeriod - 1
-  startIdx := lookbackTotal
-  outIdx := optInTimePeriod-1
-  var factor float64
+func Trima(inReal []float64, optInTimePeriod int) []float64 {
 
-  if optInTimePeriod % 2 == 1 {
-    i := optInTimePeriod >> 1
-    factor = (float64(i) + 1.0) *(float64(i) + 1.0)
-    factor = 1.0 / factor
-    trailingIdx := startIdx - lookbackTotal
-    middleIdx := trailingIdx + i
-    todayIdx := middleIdx + i
-    numerator := 0.0
-    numeratorSub := 0.0
-    for i := middleIdx; i >= trailingIdx; i-- {
-      tempReal := inReal[i]
-      numeratorSub += tempReal
-      numerator += numeratorSub
-    }
-    numeratorAdd := 0.0
-    middleIdx++
-    for i := middleIdx; i <= todayIdx; i++ {
-      tempReal := inReal[i]
-      numeratorAdd += tempReal
-      numerator += numeratorAdd
-    }
-    outIdx = optInTimePeriod-1
-    tempReal := inReal[trailingIdx];
-    trailingIdx++
-    outReal[outIdx] = numerator * factor
-    outIdx++
-    todayIdx++
-    for todayIdx < len(inReal) {
-      numerator -= numeratorSub
-      numeratorSub -= tempReal
-      tempReal = inReal[middleIdx]
-      middleIdx++
-      numeratorSub += tempReal
-      numerator += numeratorAdd
-      numeratorAdd -= tempReal
-      tempReal = inReal[todayIdx]
-      todayIdx++
-      numeratorAdd += tempReal
-      numerator += tempReal
-      tempReal = inReal[trailingIdx]
-      trailingIdx++
-      outReal[outIdx] = numerator * factor
-      outIdx++
-    }
+	outReal := make([]float64, len(inReal))
 
- } else {
+	lookbackTotal := optInTimePeriod - 1
+	startIdx := lookbackTotal
+	outIdx := optInTimePeriod - 1
+	var factor float64
 
-    i := (optInTimePeriod >> 1)
-    factor = float64(i) * (float64(i) + 1)
-    factor = 1.0 / factor
-    trailingIdx := startIdx - lookbackTotal
-    middleIdx := trailingIdx + i - 1
-    todayIdx := middleIdx + i
-    numerator := 0.0
-    numeratorSub := 0.0
-    for i := middleIdx; i >= trailingIdx; i-- {
-      tempReal := inReal[i]
-      numeratorSub += tempReal
-      numerator += numeratorSub
-    }
-    numeratorAdd := 0.0
-    middleIdx++
-    for i := middleIdx; i <= todayIdx; i++ {
-      tempReal := inReal[i]
-      numeratorAdd += tempReal
-      numerator += numeratorAdd
-    }
-    outIdx = optInTimePeriod-1
-    tempReal := inReal[trailingIdx]
-    trailingIdx++
-    outReal[outIdx] = numerator * factor
-    outIdx++
-    todayIdx++;
+	if optInTimePeriod%2 == 1 {
+		i := optInTimePeriod >> 1
+		factor = (float64(i) + 1.0) * (float64(i) + 1.0)
+		factor = 1.0 / factor
+		trailingIdx := startIdx - lookbackTotal
+		middleIdx := trailingIdx + i
+		todayIdx := middleIdx + i
+		numerator := 0.0
+		numeratorSub := 0.0
+		for i := middleIdx; i >= trailingIdx; i-- {
+			tempReal := inReal[i]
+			numeratorSub += tempReal
+			numerator += numeratorSub
+		}
+		numeratorAdd := 0.0
+		middleIdx++
+		for i := middleIdx; i <= todayIdx; i++ {
+			tempReal := inReal[i]
+			numeratorAdd += tempReal
+			numerator += numeratorAdd
+		}
+		outIdx = optInTimePeriod - 1
+		tempReal := inReal[trailingIdx]
+		trailingIdx++
+		outReal[outIdx] = numerator * factor
+		outIdx++
+		todayIdx++
+		for todayIdx < len(inReal) {
+			numerator -= numeratorSub
+			numeratorSub -= tempReal
+			tempReal = inReal[middleIdx]
+			middleIdx++
+			numeratorSub += tempReal
+			numerator += numeratorAdd
+			numeratorAdd -= tempReal
+			tempReal = inReal[todayIdx]
+			todayIdx++
+			numeratorAdd += tempReal
+			numerator += tempReal
+			tempReal = inReal[trailingIdx]
+			trailingIdx++
+			outReal[outIdx] = numerator * factor
+			outIdx++
+		}
 
-    for todayIdx < len(inReal) {
-      numerator -= numeratorSub
-      numeratorSub -= tempReal
-      tempReal = inReal[middleIdx]
-      middleIdx++
-      numeratorSub += tempReal
-      numeratorAdd -= tempReal
-      numerator += numeratorAdd
-      tempReal = inReal[todayIdx]
-      todayIdx++
-      numeratorAdd += tempReal
-      numerator += tempReal
-      tempReal = inReal[trailingIdx]
-      trailingIdx++
-      outReal[outIdx] = numerator * factor
-      outIdx++
-    }
-  }
-  return outReal
+	} else {
+
+		i := (optInTimePeriod >> 1)
+		factor = float64(i) * (float64(i) + 1)
+		factor = 1.0 / factor
+		trailingIdx := startIdx - lookbackTotal
+		middleIdx := trailingIdx + i - 1
+		todayIdx := middleIdx + i
+		numerator := 0.0
+		numeratorSub := 0.0
+		for i := middleIdx; i >= trailingIdx; i-- {
+			tempReal := inReal[i]
+			numeratorSub += tempReal
+			numerator += numeratorSub
+		}
+		numeratorAdd := 0.0
+		middleIdx++
+		for i := middleIdx; i <= todayIdx; i++ {
+			tempReal := inReal[i]
+			numeratorAdd += tempReal
+			numerator += numeratorAdd
+		}
+		outIdx = optInTimePeriod - 1
+		tempReal := inReal[trailingIdx]
+		trailingIdx++
+		outReal[outIdx] = numerator * factor
+		outIdx++
+		todayIdx++
+
+		for todayIdx < len(inReal) {
+			numerator -= numeratorSub
+			numeratorSub -= tempReal
+			tempReal = inReal[middleIdx]
+			middleIdx++
+			numeratorSub += tempReal
+			numeratorAdd -= tempReal
+			numerator += numeratorAdd
+			tempReal = inReal[todayIdx]
+			todayIdx++
+			numeratorAdd += tempReal
+			numerator += tempReal
+			tempReal = inReal[trailingIdx]
+			trailingIdx++
+			outReal[outIdx] = numerator * factor
+			outIdx++
+		}
+	}
+	return outReal
 }
 
 // Wma - Weighted Moving Average
-func Wma(inReal []float64,optInTimePeriod int) []float64 {
-  
-  outReal := make([]float64,len(inReal))
-  
-  lookbackTotal := optInTimePeriod - 1
-  startIdx := lookbackTotal
+func Wma(inReal []float64, optInTimePeriod int) []float64 {
 
-  if optInTimePeriod == 1 {
-    copy(outReal,inReal)
-    return outReal
-  }
-  divider := (optInTimePeriod * (optInTimePeriod + 1)) >> 1
-  outIdx := optInTimePeriod-1
-  trailingIdx := startIdx - lookbackTotal
-  periodSum,periodSub := 0.0,0.0
-  inIdx := trailingIdx
-  i := 1
-  for inIdx < startIdx {
-    tempReal := inReal[inIdx]
-    periodSub += tempReal
-    periodSum += tempReal * float64(i)
-    inIdx++
-    i++
-  }
-  trailingValue := 0.0;
-  for inIdx < len(inReal) {
-    tempReal := inReal[inIdx]
-    periodSub += tempReal
-    periodSub -= trailingValue
-    periodSum += tempReal * float64(optInTimePeriod)
-    trailingValue = inReal[trailingIdx]
-    outReal[outIdx] = periodSum / float64(divider)
-    periodSum -= periodSub
-    inIdx++
-    trailingIdx++
-    outIdx++
-  }
-  return outReal
+	outReal := make([]float64, len(inReal))
+
+	lookbackTotal := optInTimePeriod - 1
+	startIdx := lookbackTotal
+
+	if optInTimePeriod == 1 {
+		copy(outReal, inReal)
+		return outReal
+	}
+	divider := (optInTimePeriod * (optInTimePeriod + 1)) >> 1
+	outIdx := optInTimePeriod - 1
+	trailingIdx := startIdx - lookbackTotal
+	periodSum, periodSub := 0.0, 0.0
+	inIdx := trailingIdx
+	i := 1
+	for inIdx < startIdx {
+		tempReal := inReal[inIdx]
+		periodSub += tempReal
+		periodSum += tempReal * float64(i)
+		inIdx++
+		i++
+	}
+	trailingValue := 0.0
+	for inIdx < len(inReal) {
+		tempReal := inReal[inIdx]
+		periodSub += tempReal
+		periodSub -= trailingValue
+		periodSum += tempReal * float64(optInTimePeriod)
+		trailingValue = inReal[trailingIdx]
+		outReal[outIdx] = periodSum / float64(divider)
+		periodSum -= periodSub
+		inIdx++
+		trailingIdx++
+		outIdx++
+	}
+	return outReal
 }
 
 /* Momentum Indicators

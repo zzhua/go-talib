@@ -92,7 +92,7 @@ func TestMain(m *testing.M) {
 }
 
 // Test all the functions
-
+/*
 func TestSma(t *testing.T) {
 	result := Sma(testClose, 20)
 	compare(t, result, "result = talib.SMA(testClose,20)")
@@ -439,4 +439,25 @@ func TestMidPoint(t *testing.T) {
 func TestMidPrice(t *testing.T) {
 	result := MidPrice(testHigh,testLow, 10)
 	compare(t, result, "result = talib.MIDPRICE(testHigh,testLow,10)")
+}
+
+func TestT3(t *testing.T) {
+	result := T3(testClose,5,0.7)
+	compare(t, result, "result = talib.T3(testClose,5,0.7)")
+}
+
+func TestKama(t *testing.T) {
+	result := Kama(testClose, 10)
+	compare(t, result, "result = talib.KAMA(testClose,10)")
+}
+
+*/
+
+func TestMaVp(t *testing.T) {
+	periods := make([]float64, len(testClose))
+	for i := range testClose {
+		periods[i] = 5.0
+	}
+	result := MaVp(testClose, periods, 2, 10, SMA)
+	compare(t, result, "result = talib.MAVP(testClose,numpy.full(len(testClose),5.0),2,10,talib.MA_Type.SMA)")
 }

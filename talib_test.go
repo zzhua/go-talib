@@ -400,7 +400,7 @@ func TestMom(t *testing.T) {
 }
 
 func TestBBands(t *testing.T) {
-	upper,middle,lower := BBands(testClose,5,2.0,2.0,SMA)
+	upper, middle, lower := BBands(testClose, 5, 2.0, 2.0, SMA)
 	compare(t, upper, "result,upper,lower = talib.BBANDS(testClose,5,2.0,2.0)")
 	compare(t, middle, "upper,result,lower = talib.BBANDS(testClose,5,2.0,2.0)")
 	compare(t, lower, "upper,middle,result = talib.BBANDS(testClose,5,2.0,2.0)")
@@ -439,6 +439,63 @@ func TestMidPoint(t *testing.T) {
 }
 
 func TestMidPrice(t *testing.T) {
-	result := MidPrice(testHigh,testLow, 10)
+	result := MidPrice(testHigh, testLow, 10)
 	compare(t, result, "result = talib.MIDPRICE(testHigh,testLow,10)")
+}
+
+func TestT3(t *testing.T) {
+	result := T3(testClose, 5, 0.7)
+	compare(t, result, "result = talib.T3(testClose,5,0.7)")
+}
+
+func TestKama(t *testing.T) {
+	result := Kama(testClose, 10)
+	compare(t, result, "result = talib.KAMA(testClose,10)")
+}
+
+func TestMaVp(t *testing.T) {
+	periods := make([]float64, len(testClose))
+	for i := range testClose {
+		periods[i] = 5.0
+	}
+	result := MaVp(testClose, periods, 2, 10, SMA)
+	compare(t, result, "result = talib.MAVP(testClose,numpy.full(len(testClose),5.0),2,10,talib.MA_Type.SMA)")
+}
+
+func TestMinusDM(t *testing.T) {
+	result := MinusDM(testHigh, testLow, 14)
+	compare(t, result, "result = talib.MINUS_DM(testHigh,testLow,14)")
+}
+
+func TestPlusDM(t *testing.T) {
+	result := PlusDM(testHigh, testLow, 14)
+	compare(t, result, "result = talib.PLUS_DM(testHigh,testLow,14)")
+}
+
+func TestSar(t *testing.T) {
+	result := Sar(testHigh, testLow, 0.0, 0.0)
+	compare(t, result, "result = talib.SAR(testHigh,testLow,0.0,0.0)")
+}
+
+func TestSarExt(t *testing.T) {
+	result := SarExt(testHigh, testLow, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+	compare(t, result, "result = talib.SAREXT(testHigh,testLow,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0)")
+}
+
+func TestMama(t *testing.T) {
+	mama, fama := Mama(testClose, 0.5, 0.05)
+	compare(t, mama, "result,fama = talib.MAMA(testClose,0.5,0.05)")
+	compare(t, fama, "mama,result = talib.MAMA(testClose,0.5,0.05)")
+}
+
+func TestMinMax(t *testing.T) {
+	min, max := MinMax(testClose, 10)
+	compare(t, min, "result,max = talib.MINMAX(testClose,10)")
+	compare(t, max, "min,result = talib.MINMAX(testClose,10)")
+}
+
+func TestMinMaxIndex(t *testing.T) {
+	minidx, maxidx := MinMaxIndex(testClose, 10)
+	compare(t, minidx, "result,maxidx = talib.MINMAXINDEX(testClose,10)")
+	compare(t, maxidx, "minidx,result = talib.MINMAXINDEX(testClose,10)")
 }

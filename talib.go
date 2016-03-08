@@ -24,15 +24,7 @@ const (
 	T3MA
 )
 
-/* Overlap Studies
-TODO:
-  MAMA - MESA Adaptive Moving Average
-    mama, fama = MAMA(close, fastlimit=0, slowlimit=0)
-  SAR - Parabolic SAR
-    real = SAR(high, low, acceleration=0, maximum=0)
-  SAREXT - Parabolic SAR - Extended
-    real = SAREXT(high, low, startvalue=0, offsetonreverse=0, accelerationinitlong=0, accelerationlong=0, accelerationmaxlong=0, accelerationinitshort=0, accelerationshort=0, accelerationmaxshort=0)
-*/
+/* Overlap Studies */
 
 // BBands - Bollinger Bands
 // upperband, middleband, lowerband = BBands(close, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
@@ -193,11 +185,11 @@ func HtTrendline(inReal []float64) []float64 {
 	prevDetrenderEven := 0.0
 	prevDetrenderInputOdd := 0.0
 	prevDetrenderInputEven := 0.0
-	Q1 := 0.0
-	prevQ1Odd := 0.0
-	prevQ1Even := 0.0
-	prevQ1InputOdd := 0.0
-	prevQ1InputEven := 0.0
+	q1 := 0.0
+	prevq1Odd := 0.0
+	prevq1Even := 0.0
+	prevq1InputOdd := 0.0
+	prevq1InputEven := 0.0
 	jI := 0.0
 	prevJIOdd := 0.0
 	prevJIEven := 0.0
@@ -210,17 +202,17 @@ func HtTrendline(inReal []float64) []float64 {
 	prevJQInputEven := 0.0
 	period := 0.0
 	outIdx := 63
-	prevI2 := 0.0
-	prevQ2 := 0.0
+	previ2 := 0.0
+	prevq2 := 0.0
 	Re := 0.0
 	Im := 0.0
-	I1ForOddPrev3 := 0.0
-	I1ForEvenPrev3 := 0.0
-	I1ForOddPrev2 := 0.0
-	I1ForEvenPrev2 := 0.0
+	i1ForOddPrev3 := 0.0
+	i1ForEvenPrev3 := 0.0
+	i1ForOddPrev2 := 0.0
+	i1ForEvenPrev2 := 0.0
 	smoothPeriod := 0.0
-	Q2 := 0.0
-	I2 := 0.0
+	q2 := 0.0
+	i2 := 0.0
 	for today < len(inReal) {
 		adjustedPrevPeriod := (0.075 * period) + 0.54
 		todayValue := inReal[today]
@@ -243,40 +235,40 @@ func HtTrendline(inReal []float64) []float64 {
 			prevDetrenderInputEven = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Even[hilbertIdx]
+			q1 = -q1Even[hilbertIdx]
 			q1Even[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Even
-			prevQ1Even = b * prevQ1InputEven
-			Q1 += prevQ1Even
-			prevQ1InputEven = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForEvenPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Even
+			prevq1Even = b * prevq1InputEven
+			q1 += prevq1Even
+			prevq1InputEven = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForEvenPrev3
 			jI = -jIEven[hilbertIdx]
 			jIEven[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIEven
 			prevJIEven = b * prevJIInputEven
 			jI += prevJIEven
-			prevJIInputEven = I1ForEvenPrev3
+			prevJIInputEven = i1ForEvenPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQEven[hilbertIdx]
 			jQEven[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQEven
 			prevJQEven = b * prevJQInputEven
 			jQ += prevJQEven
-			prevJQInputEven = Q1
+			prevJQInputEven = q1
 			jQ *= adjustedPrevPeriod
 			hilbertIdx++
 			if hilbertIdx == 3 {
 				hilbertIdx = 0
 			}
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForEvenPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForOddPrev3 = I1ForOddPrev2
-			I1ForOddPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForEvenPrev3 - jQ)) + (0.8 * previ2)
+			i1ForOddPrev3 = i1ForOddPrev2
+			i1ForOddPrev2 = detrender
 		} else {
 			hilbertTempReal := a * smoothedValue
 			detrender = -detrenderOdd[hilbertIdx]
@@ -288,41 +280,41 @@ func HtTrendline(inReal []float64) []float64 {
 			prevDetrenderInputOdd = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Odd[hilbertIdx]
+			q1 = -q1Odd[hilbertIdx]
 			q1Odd[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Odd
-			prevQ1Odd = b * prevQ1InputOdd
-			Q1 += prevQ1Odd
-			prevQ1InputOdd = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForOddPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Odd
+			prevq1Odd = b * prevq1InputOdd
+			q1 += prevq1Odd
+			prevq1InputOdd = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForOddPrev3
 			jI = -jIOdd[hilbertIdx]
 			jIOdd[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIOdd
 			prevJIOdd = b * prevJIInputOdd
 			jI += prevJIOdd
-			prevJIInputOdd = I1ForOddPrev3
+			prevJIInputOdd = i1ForOddPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQOdd[hilbertIdx]
 			jQOdd[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQOdd
 			prevJQOdd = b * prevJQInputOdd
 			jQ += prevJQOdd
-			prevJQInputOdd = Q1
+			prevJQInputOdd = q1
 			jQ *= adjustedPrevPeriod
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForOddPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForEvenPrev3 = I1ForEvenPrev2
-			I1ForEvenPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForOddPrev3 - jQ)) + (0.8 * previ2)
+			i1ForEvenPrev3 = i1ForEvenPrev2
+			i1ForEvenPrev2 = detrender
 		}
-		Re = (0.2 * ((I2 * prevI2) + (Q2 * prevQ2))) + (0.8 * Re)
-		Im = (0.2 * ((I2 * prevQ2) - (Q2 * prevI2))) + (0.8 * Im)
-		prevQ2 = Q2
-		prevI2 = I2
+		Re = (0.2 * ((i2 * previ2) + (q2 * prevq2))) + (0.8 * Re)
+		Im = (0.2 * ((i2 * prevq2) - (q2 * previ2))) + (0.8 * Im)
+		prevq2 = q2
+		previ2 = i2
 		tempReal = period
 		if (Im != 0.0) && (Re != 0.0) {
 			period = 360.0 / (math.Atan(Im/Re) * rad2Deg)
@@ -483,6 +475,282 @@ func MA(inReal []float64, optInTimePeriod int, optInMAType MaType) []float64 {
 	return outReal
 }
 
+// Mama - MESA Adaptive Moving Average (lookback=32)
+func Mama(inReal []float64, optInFastLimit float64, optInSlowLimit float64) ([]float64, []float64) {
+
+	outMAMA := make([]float64, len(inReal))
+	outFAMA := make([]float64, len(inReal))
+
+	a := 0.0962
+	b := 0.5769
+	detrenderOdd := make([]float64, 3)
+	detrenderEven := make([]float64, 3)
+	q1Odd := make([]float64, 3)
+	q1Even := make([]float64, 3)
+	jIOdd := make([]float64, 3)
+	jIEven := make([]float64, 3)
+	jQOdd := make([]float64, 3)
+	jQEven := make([]float64, 3)
+	rad2Deg := 180.0 / (4.0 * math.Atan(1))
+	lookbackTotal := 32
+	startIdx := lookbackTotal
+	trailingWMAIdx := startIdx - lookbackTotal
+	today := trailingWMAIdx
+	tempReal := inReal[today]
+	today++
+	periodWMASub := tempReal
+	periodWMASum := tempReal
+	tempReal = inReal[today]
+	today++
+	periodWMASub += tempReal
+	periodWMASum += tempReal * 2.0
+	tempReal = inReal[today]
+	today++
+	periodWMASub += tempReal
+	periodWMASum += tempReal * 3.0
+	trailingWMAValue := 0.0
+	i := 9
+	smoothedValue := 0.0
+	for ok := true; ok; {
+		tempReal = inReal[today]
+		today++
+		periodWMASub += tempReal
+		periodWMASub -= trailingWMAValue
+		periodWMASum += tempReal * 4.0
+		trailingWMAValue = inReal[trailingWMAIdx]
+		trailingWMAIdx++
+		smoothedValue = periodWMASum * 0.1
+		periodWMASum -= periodWMASub
+		i--
+		ok = i != 0
+	}
+	hilbertIdx := 0
+	detrenderOdd[0] = 0.0
+	detrenderOdd[1] = 0.0
+	detrenderOdd[2] = 0.0
+	detrenderEven[0] = 0.0
+	detrenderEven[1] = 0.0
+	detrenderEven[2] = 0.0
+	detrender := 0.0
+	prevDetrenderOdd := 0.0
+	prevDetrenderEven := 0.0
+	prevDetrenderInputOdd := 0.0
+	prevDetrenderInputEven := 0.0
+
+	q1Odd[0] = 0.0
+	q1Odd[1] = 0.0
+	q1Odd[2] = 0.0
+	q1Even[0] = 0.0
+	q1Even[1] = 0.0
+	q1Even[2] = 0.0
+	q1 := 0.0
+	prevq1Odd := 0.0
+	prevq1Even := 0.0
+	prevq1InputOdd := 0.0
+	prevq1InputEven := 0.0
+
+	jIOdd[0] = 0.0
+	jIOdd[1] = 0.0
+	jIOdd[2] = 0.0
+	jIEven[0] = 0.0
+	jIEven[1] = 0.0
+	jIEven[2] = 0.0
+	jI := 0.0
+	prevjIOdd := 0.0
+	prevjIEven := 0.0
+	prevjIInputOdd := 0.0
+	prevjIInputEven := 0.0
+
+	jQOdd[0] = 0.0
+	jQOdd[1] = 0.0
+	jQOdd[2] = 0.0
+	jQEven[0] = 0.0
+	jQEven[1] = 0.0
+	jQEven[2] = 0.0
+	jQ := 0.0
+	prevjQOdd := 0.0
+	prevjQEven := 0.0
+	prevjQInputOdd := 0.0
+	prevjQInputEven := 0.0
+
+	period := 0.0
+	outIdx := startIdx
+	previ2, prevq2 := 0.0, 0.0
+	Re, Im := 0.0, 0.0
+	mama, fama := 0.0, 0.0
+	i1ForOddPrev3, i1ForEvenPrev3 := 0.0, 0.0
+	i1ForOddPrev2, i1ForEvenPrev2 := 0.0, 0.0
+	prevPhase := 0.0
+	adjustedPrevPeriod := 0.0
+	todayValue := 0.0
+	hilbertTempReal := 0.0
+	for today < len(inReal) {
+		adjustedPrevPeriod = (0.075 * period) + 0.54
+		todayValue = inReal[today]
+
+		periodWMASub += todayValue
+		periodWMASub -= trailingWMAValue
+		periodWMASum += todayValue * 4.0
+		trailingWMAValue = inReal[trailingWMAIdx]
+		trailingWMAIdx++
+		smoothedValue = periodWMASum * 0.1
+		periodWMASum -= periodWMASub
+		q2, i2 := 0.0, 0.0
+		tempReal2 := 0.0
+		if (today % 2) == 0 {
+
+			hilbertTempReal = a * smoothedValue
+			detrender = -detrenderEven[hilbertIdx]
+			detrenderEven[hilbertIdx] = hilbertTempReal
+			detrender += hilbertTempReal
+			detrender -= prevDetrenderEven
+			prevDetrenderEven = b * prevDetrenderInputEven
+			detrender += prevDetrenderEven
+			prevDetrenderInputEven = smoothedValue
+			detrender *= adjustedPrevPeriod
+
+			hilbertTempReal = a * detrender
+			q1 = -q1Even[hilbertIdx]
+			q1Even[hilbertIdx] = hilbertTempReal
+			q1 += hilbertTempReal
+			q1 -= prevq1Even
+			prevq1Even = b * prevq1InputEven
+			q1 += prevq1Even
+			prevq1InputEven = detrender
+			q1 *= adjustedPrevPeriod
+
+			hilbertTempReal = a * i1ForEvenPrev3
+			jI = -jIEven[hilbertIdx]
+			jIEven[hilbertIdx] = hilbertTempReal
+			jI += hilbertTempReal
+			jI -= prevjIEven
+			prevjIEven = b * prevjIInputEven
+			jI += prevjIEven
+			prevjIInputEven = i1ForEvenPrev3
+			jI *= adjustedPrevPeriod
+
+			hilbertTempReal = a * q1
+			jQ = -jQEven[hilbertIdx]
+			jQEven[hilbertIdx] = hilbertTempReal
+			jQ += hilbertTempReal
+			jQ -= prevjQEven
+			prevjQEven = b * prevjQInputEven
+			jQ += prevjQEven
+			prevjQInputEven = q1
+			jQ *= adjustedPrevPeriod
+			hilbertIdx++
+			if hilbertIdx == 3 {
+				hilbertIdx = 0
+			}
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForEvenPrev3 - jQ)) + (0.8 * previ2)
+			i1ForOddPrev3 = i1ForOddPrev2
+			i1ForOddPrev2 = detrender
+			if i1ForEvenPrev3 != 0.0 {
+				tempReal2 = (math.Atan(q1/i1ForEvenPrev3) * rad2Deg)
+			} else {
+				tempReal2 = 0.0
+			}
+		} else {
+
+			hilbertTempReal = a * smoothedValue
+			detrender = -detrenderOdd[hilbertIdx]
+			detrenderOdd[hilbertIdx] = hilbertTempReal
+			detrender += hilbertTempReal
+			detrender -= prevDetrenderOdd
+			prevDetrenderOdd = b * prevDetrenderInputOdd
+			detrender += prevDetrenderOdd
+			prevDetrenderInputOdd = smoothedValue
+			detrender *= adjustedPrevPeriod
+
+			hilbertTempReal = a * detrender
+			q1 = -q1Odd[hilbertIdx]
+			q1Odd[hilbertIdx] = hilbertTempReal
+			q1 += hilbertTempReal
+			q1 -= prevq1Odd
+			prevq1Odd = b * prevq1InputOdd
+			q1 += prevq1Odd
+			prevq1InputOdd = detrender
+			q1 *= adjustedPrevPeriod
+
+			hilbertTempReal = a * i1ForOddPrev3
+			jI = -jIOdd[hilbertIdx]
+			jIOdd[hilbertIdx] = hilbertTempReal
+			jI += hilbertTempReal
+			jI -= prevjIOdd
+			prevjIOdd = b * prevjIInputOdd
+			jI += prevjIOdd
+			prevjIInputOdd = i1ForOddPrev3
+			jI *= adjustedPrevPeriod
+
+			hilbertTempReal = a * q1
+			jQ = -jQOdd[hilbertIdx]
+			jQOdd[hilbertIdx] = hilbertTempReal
+			jQ += hilbertTempReal
+			jQ -= prevjQOdd
+			prevjQOdd = b * prevjQInputOdd
+			jQ += prevjQOdd
+			prevjQInputOdd = q1
+			jQ *= adjustedPrevPeriod
+
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForOddPrev3 - jQ)) + (0.8 * previ2)
+			i1ForEvenPrev3 = i1ForEvenPrev2
+			i1ForEvenPrev2 = detrender
+			if i1ForOddPrev3 != 0.0 {
+				tempReal2 = (math.Atan(q1/i1ForOddPrev3) * rad2Deg)
+			} else {
+				tempReal2 = 0.0
+			}
+		}
+		tempReal = prevPhase - tempReal2
+		prevPhase = tempReal2
+		if tempReal < 1.0 {
+			tempReal = 1.0
+		}
+		if tempReal > 1.0 {
+			tempReal = optInFastLimit / tempReal
+			if tempReal < optInSlowLimit {
+				tempReal = optInSlowLimit
+			}
+		} else {
+			tempReal = optInFastLimit
+		}
+		mama = (tempReal * todayValue) + ((1 - tempReal) * mama)
+		tempReal *= 0.5
+		fama = (tempReal * mama) + ((1 - tempReal) * fama)
+		if today >= startIdx {
+			outMAMA[outIdx] = mama
+			outFAMA[outIdx] = fama
+			outIdx++
+		}
+		Re = (0.2 * ((i2 * previ2) + (q2 * prevq2))) + (0.8 * Re)
+		Im = (0.2 * ((i2 * prevq2) - (q2 * previ2))) + (0.8 * Im)
+		prevq2 = q2
+		previ2 = i2
+		tempReal = period
+		if (Im != 0.0) && (Re != 0.0) {
+			period = 360.0 / (math.Atan(Im/Re) * rad2Deg)
+		}
+		tempReal2 = 1.5 * tempReal
+		if period > tempReal2 {
+			period = tempReal2
+		}
+		tempReal2 = 0.67 * tempReal
+		if period < tempReal2 {
+			period = tempReal2
+		}
+		if period < 6 {
+			period = 6
+		} else if period > 50 {
+			period = 50
+		}
+		period = (0.2 * period) + (0.8 * tempReal)
+		today++
+	}
+	return outMAMA, outFAMA
+}
+
 // MaVp - Moving average with variable period
 func MaVp(inReal []float64, inPeriods []float64, optInMinPeriod int, optInMaxPeriod int, optInMAType MaType) []float64 {
 
@@ -573,6 +841,292 @@ func MidPrice(inHigh []float64, inLow []float64, optInTimePeriod int) []float64 
 		outReal[outIdx] = (highest + lowest) / 2.0
 		outIdx++
 		today++
+	}
+	return outReal
+}
+
+// Sar - Parabolic SAR
+// real = Sar(high, low, acceleration=0, maximum=0)
+func Sar(inHigh []float64, inLow []float64, optInAcceleration float64, optInMaximum float64) []float64 {
+
+	outReal := make([]float64, len(inHigh))
+
+	af := optInAcceleration
+	if af > optInMaximum {
+		af, optInAcceleration = optInMaximum, optInMaximum
+	}
+
+	epTemp := MinusDM(inHigh, inLow, 1)
+	isLong := 1
+	if epTemp[1] > 0 {
+		isLong = 0
+	}
+	startIdx := 1
+	outIdx := startIdx
+	todayIdx := startIdx
+	newHigh := inHigh[todayIdx-1]
+	newLow := inLow[todayIdx-1]
+	sar, ep := 0.0, 0.0
+	if isLong == 1 {
+		ep = inHigh[todayIdx]
+		sar = newLow
+	} else {
+		ep = inLow[todayIdx]
+		sar = newHigh
+	}
+	newLow = inLow[todayIdx]
+	newHigh = inHigh[todayIdx]
+	prevLow := 0.0
+	prevHigh := 0.0
+	for todayIdx < len(inHigh) {
+		prevLow = newLow
+		prevHigh = newHigh
+		newLow = inLow[todayIdx]
+		newHigh = inHigh[todayIdx]
+		todayIdx++
+		if isLong == 1 {
+			if newLow <= sar {
+				isLong = 0
+				sar = ep
+				if sar < prevHigh {
+					sar = prevHigh
+				}
+				if sar < newHigh {
+					sar = newHigh
+				}
+				outReal[outIdx] = sar
+				outIdx++
+				af = optInAcceleration
+				ep = newLow
+				sar = sar + af*(ep-sar)
+				if sar < prevHigh {
+					sar = prevHigh
+				}
+				if sar < newHigh {
+					sar = newHigh
+				}
+			} else {
+				outReal[outIdx] = sar
+				outIdx++
+				if newHigh > ep {
+					ep = newHigh
+					af += optInAcceleration
+					if af > optInMaximum {
+						af = optInMaximum
+					}
+				}
+				sar = sar + af*(ep-sar)
+				if sar > prevLow {
+					sar = prevLow
+				}
+				if sar > newLow {
+					sar = newLow
+				}
+			}
+		} else {
+			if newHigh >= sar {
+				isLong = 1
+				sar = ep
+				if sar > prevLow {
+					sar = prevLow
+				}
+				if sar > newLow {
+					sar = newLow
+				}
+				outReal[outIdx] = sar
+				outIdx++
+				af = optInAcceleration
+				ep = newHigh
+				sar = sar + af*(ep-sar)
+				if sar > prevLow {
+					sar = prevLow
+				}
+				if sar > newLow {
+					sar = newLow
+				}
+			} else {
+				outReal[outIdx] = sar
+				outIdx++
+				if newLow < ep {
+					ep = newLow
+					af += optInAcceleration
+					if af > optInMaximum {
+						af = optInMaximum
+					}
+				}
+				sar = sar + af*(ep-sar)
+				if sar < prevHigh {
+					sar = prevHigh
+				}
+				if sar < newHigh {
+					sar = newHigh
+				}
+			}
+		}
+	}
+	return outReal
+}
+
+// SarExt - Parabolic SAR - Extended
+// real = SAREXT(high, low, startvalue=0, offsetonreverse=0, accelerationinitlong=0, accelerationlong=0, accelerationmaxlong=0, accelerationinitshort=0, accelerationshort=0, accelerationmaxshort=0)
+func SarExt(inHigh []float64, inLow []float64,
+	optInStartValue float64,
+	optInOffsetOnReverse float64,
+	optInAccelerationInitLong float64,
+	optInAccelerationLong float64,
+	optInAccelerationMaxLong float64,
+	optInAccelerationInitShort float64,
+	optInAccelerationShort float64,
+	optInAccelerationMaxShort float64) []float64 {
+
+	outReal := make([]float64, len(inHigh))
+
+	startIdx := 1
+	afLong := optInAccelerationInitLong
+	afShort := optInAccelerationInitShort
+	if afLong > optInAccelerationMaxLong {
+		afLong, optInAccelerationInitLong = optInAccelerationMaxLong, optInAccelerationMaxLong
+	}
+
+	if optInAccelerationLong > optInAccelerationMaxLong {
+		optInAccelerationLong = optInAccelerationMaxLong
+	}
+
+	if afShort > optInAccelerationMaxShort {
+		afShort, optInAccelerationInitShort = optInAccelerationMaxShort, optInAccelerationMaxShort
+	}
+
+	if optInAccelerationShort > optInAccelerationMaxShort {
+		optInAccelerationShort = optInAccelerationMaxShort
+	}
+
+	isLong := 0
+	if optInStartValue == 0 {
+		epTemp := MinusDM(inHigh, inLow, 1)
+		if epTemp[1] > 0 {
+			isLong = 0
+		} else {
+			isLong = 1
+		}
+	} else if optInStartValue > 0 {
+		isLong = 1
+	}
+	outIdx := startIdx
+	todayIdx := startIdx
+	newHigh := inHigh[todayIdx-1]
+	newLow := inLow[todayIdx-1]
+	ep := 0.0
+	sar := 0.0
+	if optInStartValue == 0 {
+		if isLong == 1 {
+			ep = inHigh[todayIdx]
+			sar = newLow
+		} else {
+			ep = inLow[todayIdx]
+			sar = newHigh
+		}
+	} else if optInStartValue > 0 {
+		ep = inHigh[todayIdx]
+		sar = optInStartValue
+	} else {
+		ep = inLow[todayIdx]
+		sar = math.Abs(optInStartValue)
+	}
+	newLow = inLow[todayIdx]
+	newHigh = inHigh[todayIdx]
+	prevLow := 0.0
+	prevHigh := 0.0
+	for todayIdx < len(inHigh) {
+		prevLow = newLow
+		prevHigh = newHigh
+		newLow = inLow[todayIdx]
+		newHigh = inHigh[todayIdx]
+		todayIdx++
+		if isLong == 1 {
+			if newLow <= sar {
+				isLong = 0
+				sar = ep
+				if sar < prevHigh {
+					sar = prevHigh
+				}
+				if sar < newHigh {
+					sar = newHigh
+				}
+				if optInOffsetOnReverse != 0.0 {
+					sar += sar * optInOffsetOnReverse
+				}
+				outReal[outIdx] = -sar
+				outIdx++
+				afShort = optInAccelerationInitShort
+				ep = newLow
+				sar = sar + afShort*(ep-sar)
+				if sar < prevHigh {
+					sar = prevHigh
+				}
+				if sar < newHigh {
+					sar = newHigh
+				}
+			} else {
+				outReal[outIdx] = sar
+				outIdx++
+				if newHigh > ep {
+					ep = newHigh
+					afLong += optInAccelerationLong
+					if afLong > optInAccelerationMaxLong {
+						afLong = optInAccelerationMaxLong
+					}
+				}
+				sar = sar + afLong*(ep-sar)
+				if sar > prevLow {
+					sar = prevLow
+				}
+				if sar > newLow {
+					sar = newLow
+				}
+			}
+		} else {
+			if newHigh >= sar {
+				isLong = 1
+				sar = ep
+				if sar > prevLow {
+					sar = prevLow
+				}
+				if sar > newLow {
+					sar = newLow
+				}
+				if optInOffsetOnReverse != 0.0 {
+					sar -= sar * optInOffsetOnReverse
+				}
+				outReal[outIdx] = sar
+				outIdx++
+				afLong = optInAccelerationInitLong
+				ep = newHigh
+				sar = sar + afLong*(ep-sar)
+				if sar > prevLow {
+					sar = prevLow
+				}
+				if sar > newLow {
+					sar = newLow
+				}
+			} else {
+				outReal[outIdx] = -sar
+				outIdx++
+				if newLow < ep {
+					ep = newLow
+					afShort += optInAccelerationShort
+					if afShort > optInAccelerationMaxShort {
+						afShort = optInAccelerationMaxShort
+					}
+				}
+				sar = sar + afShort*(ep-sar)
+				if sar < prevHigh {
+					sar = prevHigh
+				}
+				if sar < newHigh {
+					sar = newHigh
+				}
+			}
+		}
 	}
 	return outReal
 }
@@ -894,12 +1448,8 @@ TODO:
     real = MFI(high, low, close, volume, timeperiod=14)
   MINUS_DI - Minus Directional Indicator
     real = MINUS_DI(high, low, close, timeperiod=14)
-  MINUS_DM - Minus Directional Movement
-    real = MINUS_DM(high, low, timeperiod=14)
   PLUS_DI - Plus Directional Indicator
     real = PLUS_DI(high, low, close, timeperiod=14)
-  PLUS_DM - Plus Directional Movement
-    real = PLUS_DM(high, low, timeperiod=14)
   PPO - Percentage Price Oscillator
     real = PPO(close, fastperiod=12, slowperiod=26, matype=0)
   STOCH - Stochastic
@@ -1109,6 +1659,96 @@ func Cci(inHigh []float64, inLow []float64, inClose []float64, optInTimePeriod i
 	return outReal
 }
 
+// MinusDM - Minus Directional Movement
+func MinusDM(inHigh []float64, inLow []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inHigh))
+
+	lookbackTotal := 1
+	if optInTimePeriod > 1 {
+		lookbackTotal = optInTimePeriod - 1
+	}
+	startIdx := lookbackTotal
+	outIdx := startIdx
+	today := startIdx
+	prevHigh := 0.0
+	prevLow := 0.0
+	if optInTimePeriod <= 1 {
+		today = startIdx - 1
+		prevHigh = inHigh[today]
+		prevLow = inLow[today]
+		for today < len(inHigh)-1 {
+			today++
+			tempReal := inHigh[today]
+			diffP := tempReal - prevHigh
+			prevHigh = tempReal
+			tempReal = inLow[today]
+			diffM := prevLow - tempReal
+			prevLow = tempReal
+			if (diffM > 0) && (diffP < diffM) {
+				outReal[outIdx] = diffM
+			} else {
+				outReal[outIdx] = 0
+			}
+			outIdx++
+		}
+		return outReal
+	}
+	prevMinusDM := 0.0
+	today = startIdx - lookbackTotal
+	prevHigh = inHigh[today]
+	prevLow = inLow[today]
+	i := optInTimePeriod - 1
+	for i > 0 {
+		i--
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		if (diffM > 0) && (diffP < diffM) {
+			prevMinusDM += diffM
+		}
+	}
+	i = 0
+	for i != 0 {
+		i--
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		if (diffM > 0) && (diffP < diffM) {
+			prevMinusDM = prevMinusDM - (prevMinusDM / float64(optInTimePeriod)) + diffM
+		} else {
+			prevMinusDM = prevMinusDM - (prevMinusDM / float64(optInTimePeriod))
+		}
+	}
+	outReal[startIdx] = prevMinusDM
+	outIdx = startIdx + 1
+	for today < len(inHigh)-1 {
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		if (diffM > 0) && (diffP < diffM) {
+			prevMinusDM = prevMinusDM - (prevMinusDM / float64(optInTimePeriod)) + diffM
+		} else {
+			prevMinusDM = prevMinusDM - (prevMinusDM / float64(optInTimePeriod))
+		}
+		outReal[outIdx] = prevMinusDM
+		outIdx++
+	}
+	return outReal
+}
+
 // Mom - Momentum
 func Mom(inReal []float64, optInTimePeriod int) []float64 {
 
@@ -1120,6 +1760,96 @@ func Mom(inReal []float64, optInTimePeriod int) []float64 {
 		inIdx, outIdx, trailingIdx = inIdx+1, outIdx+1, trailingIdx+1
 	}
 
+	return outReal
+}
+
+// PlusDM - Plus Directional Movement
+func PlusDM(inHigh []float64, inLow []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inHigh))
+
+	lookbackTotal := 1
+	if optInTimePeriod > 1 {
+		lookbackTotal = optInTimePeriod - 1
+	}
+	startIdx := lookbackTotal
+	outIdx := startIdx
+	today := startIdx
+	prevHigh := 0.0
+	prevLow := 0.0
+	if optInTimePeriod <= 1 {
+		today = startIdx - 1
+		prevHigh = inHigh[today]
+		prevLow = inLow[today]
+		for today < len(inHigh)-1 {
+			today++
+			tempReal := inHigh[today]
+			diffP := tempReal - prevHigh
+			prevHigh = tempReal
+			tempReal = inLow[today]
+			diffM := prevLow - tempReal
+			prevLow = tempReal
+			if (diffP > 0) && (diffP > diffM) {
+				outReal[outIdx] = diffP
+			} else {
+				outReal[outIdx] = 0
+			}
+			outIdx++
+		}
+		return outReal
+	}
+	prevPlusDM := 0.0
+	today = startIdx - lookbackTotal
+	prevHigh = inHigh[today]
+	prevLow = inLow[today]
+	i := optInTimePeriod - 1
+	for i > 0 {
+		i--
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		if (diffP > 0) && (diffP > diffM) {
+			prevPlusDM += diffP
+		}
+	}
+	i = 0
+	for i != 0 {
+		i--
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		if (diffP > 0) && (diffP > diffM) {
+			prevPlusDM = prevPlusDM - (prevPlusDM / float64(optInTimePeriod)) + diffP
+		} else {
+			prevPlusDM = prevPlusDM - (prevPlusDM / float64(optInTimePeriod))
+		}
+	}
+	outReal[startIdx] = prevPlusDM
+	outIdx = startIdx + 1
+	for today < len(inHigh)-1 {
+		today++
+		tempReal := inHigh[today]
+		diffP := tempReal - prevHigh
+		prevHigh = tempReal
+		tempReal = inLow[today]
+		diffM := prevLow - tempReal
+		prevLow = tempReal
+		if (diffP > 0) && (diffP > diffM) {
+			prevPlusDM = prevPlusDM - (prevPlusDM / float64(optInTimePeriod)) + diffP
+		} else {
+			prevPlusDM = prevPlusDM - (prevPlusDM / float64(optInTimePeriod))
+		}
+		outReal[outIdx] = prevPlusDM
+		outIdx++
+	}
 	return outReal
 }
 
@@ -1722,11 +2452,11 @@ func HtDcPeriod(inReal []float64) []float64 {
 	prevDetrenderEven := 0.0
 	prevDetrenderInputOdd := 0.0
 	prevDetrenderInputEven := 0.0
-	Q1 := 0.0
-	prevQ1Odd := 0.0
-	prevQ1Even := 0.0
-	prevQ1InputOdd := 0.0
-	prevQ1InputEven := 0.0
+	q1 := 0.0
+	prevq1Odd := 0.0
+	prevq1Even := 0.0
+	prevq1InputOdd := 0.0
+	prevq1InputEven := 0.0
 	jI := 0.0
 	prevJIOdd := 0.0
 	prevJIEven := 0.0
@@ -1739,16 +2469,16 @@ func HtDcPeriod(inReal []float64) []float64 {
 	prevJQInputEven := 0.0
 	period := 0.0
 	outIdx := 32
-	prevI2 := 0.0
-	prevQ2 := 0.0
+	previ2 := 0.0
+	prevq2 := 0.0
 	Re := 0.0
 	Im := 0.0
-	I2 := 0.0
-	Q2 := 0.0
-	I1ForOddPrev3 := 0.0
-	I1ForEvenPrev3 := 0.0
-	I1ForOddPrev2 := 0.0
-	I1ForEvenPrev2 := 0.0
+	i2 := 0.0
+	q2 := 0.0
+	i1ForOddPrev3 := 0.0
+	i1ForEvenPrev3 := 0.0
+	i1ForOddPrev2 := 0.0
+	i1ForEvenPrev2 := 0.0
 	smoothPeriod := 0.0
 	for today < len(inReal) {
 		adjustedPrevPeriod := (0.075 * period) + 0.54
@@ -1772,40 +2502,40 @@ func HtDcPeriod(inReal []float64) []float64 {
 			prevDetrenderInputEven = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Even[hilbertIdx]
+			q1 = -q1Even[hilbertIdx]
 			q1Even[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Even
-			prevQ1Even = b * prevQ1InputEven
-			Q1 += prevQ1Even
-			prevQ1InputEven = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForEvenPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Even
+			prevq1Even = b * prevq1InputEven
+			q1 += prevq1Even
+			prevq1InputEven = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForEvenPrev3
 			jI = -jIEven[hilbertIdx]
 			jIEven[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIEven
 			prevJIEven = b * prevJIInputEven
 			jI += prevJIEven
-			prevJIInputEven = I1ForEvenPrev3
+			prevJIInputEven = i1ForEvenPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQEven[hilbertIdx]
 			jQEven[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQEven
 			prevJQEven = b * prevJQInputEven
 			jQ += prevJQEven
-			prevJQInputEven = Q1
+			prevJQInputEven = q1
 			jQ *= adjustedPrevPeriod
 			hilbertIdx++
 			if hilbertIdx == 3 {
 				hilbertIdx = 0
 			}
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForEvenPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForOddPrev3 = I1ForOddPrev2
-			I1ForOddPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForEvenPrev3 - jQ)) + (0.8 * previ2)
+			i1ForOddPrev3 = i1ForOddPrev2
+			i1ForOddPrev2 = detrender
 		} else {
 			hilbertTempReal = a * smoothedValue
 			detrender = -detrenderOdd[hilbertIdx]
@@ -1817,41 +2547,41 @@ func HtDcPeriod(inReal []float64) []float64 {
 			prevDetrenderInputOdd = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Odd[hilbertIdx]
+			q1 = -q1Odd[hilbertIdx]
 			q1Odd[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Odd
-			prevQ1Odd = b * prevQ1InputOdd
-			Q1 += prevQ1Odd
-			prevQ1InputOdd = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForOddPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Odd
+			prevq1Odd = b * prevq1InputOdd
+			q1 += prevq1Odd
+			prevq1InputOdd = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForOddPrev3
 			jI = -jIOdd[hilbertIdx]
 			jIOdd[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIOdd
 			prevJIOdd = b * prevJIInputOdd
 			jI += prevJIOdd
-			prevJIInputOdd = I1ForOddPrev3
+			prevJIInputOdd = i1ForOddPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQOdd[hilbertIdx]
 			jQOdd[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQOdd
 			prevJQOdd = b * prevJQInputOdd
 			jQ += prevJQOdd
-			prevJQInputOdd = Q1
+			prevJQInputOdd = q1
 			jQ *= adjustedPrevPeriod
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForOddPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForEvenPrev3 = I1ForEvenPrev2
-			I1ForEvenPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForOddPrev3 - jQ)) + (0.8 * previ2)
+			i1ForEvenPrev3 = i1ForEvenPrev2
+			i1ForEvenPrev2 = detrender
 		}
-		Re = (0.2 * ((I2 * prevI2) + (Q2 * prevQ2))) + (0.8 * Re)
-		Im = (0.2 * ((I2 * prevQ2) - (Q2 * prevI2))) + (0.8 * Im)
-		prevQ2 = Q2
-		prevI2 = I2
+		Re = (0.2 * ((i2 * previ2) + (q2 * prevq2))) + (0.8 * Re)
+		Im = (0.2 * ((i2 * prevq2) - (q2 * previ2))) + (0.8 * Im)
+		prevq2 = q2
+		previ2 = i2
 		tempReal = period
 		if (Im != 0.0) && (Re != 0.0) {
 			period = 360.0 / (math.Atan(Im/Re) * rad2Deg)
@@ -1939,11 +2669,11 @@ func HtDcPhase(inReal []float64) []float64 {
 	prevDetrenderEven := 0.0
 	prevDetrenderInputOdd := 0.0
 	prevDetrenderInputEven := 0.0
-	Q1 := 0.0
-	prevQ1Odd := 0.0
-	prevQ1Even := 0.0
-	prevQ1InputOdd := 0.0
-	prevQ1InputEven := 0.0
+	q1 := 0.0
+	prevq1Odd := 0.0
+	prevq1Even := 0.0
+	prevq1InputOdd := 0.0
+	prevq1InputEven := 0.0
 	jI := 0.0
 	prevJIOdd := 0.0
 	prevJIEven := 0.0
@@ -1956,18 +2686,18 @@ func HtDcPhase(inReal []float64) []float64 {
 	prevJQInputEven := 0.0
 	period := 0.0
 	outIdx := 0
-	prevI2 := 0.0
-	prevQ2 := 0.0
+	previ2 := 0.0
+	prevq2 := 0.0
 	Re := 0.0
 	Im := 0.0
-	I1ForOddPrev3 := 0.0
-	I1ForEvenPrev3 := 0.0
-	I1ForOddPrev2 := 0.0
-	I1ForEvenPrev2 := 0.0
+	i1ForOddPrev3 := 0.0
+	i1ForEvenPrev3 := 0.0
+	i1ForOddPrev2 := 0.0
+	i1ForEvenPrev2 := 0.0
 	smoothPeriod := 0.0
-	DCPhase := 0.0
-	Q2 := 0.0
-	I2 := 0.0
+	dcPhase := 0.0
+	q2 := 0.0
+	i2 := 0.0
 	for today < len(inReal) {
 		adjustedPrevPeriod := (0.075 * period) + 0.54
 		todayValue := inReal[today]
@@ -1991,40 +2721,40 @@ func HtDcPhase(inReal []float64) []float64 {
 			prevDetrenderInputEven = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Even[hilbertIdx]
+			q1 = -q1Even[hilbertIdx]
 			q1Even[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Even
-			prevQ1Even = b * prevQ1InputEven
-			Q1 += prevQ1Even
-			prevQ1InputEven = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForEvenPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Even
+			prevq1Even = b * prevq1InputEven
+			q1 += prevq1Even
+			prevq1InputEven = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForEvenPrev3
 			jI = -jIEven[hilbertIdx]
 			jIEven[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIEven
 			prevJIEven = b * prevJIInputEven
 			jI += prevJIEven
-			prevJIInputEven = I1ForEvenPrev3
+			prevJIInputEven = i1ForEvenPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQEven[hilbertIdx]
 			jQEven[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQEven
 			prevJQEven = b * prevJQInputEven
 			jQ += prevJQEven
-			prevJQInputEven = Q1
+			prevJQInputEven = q1
 			jQ *= adjustedPrevPeriod
 			hilbertIdx++
 			if hilbertIdx == 3 {
 				hilbertIdx = 0
 			}
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForEvenPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForOddPrev3 = I1ForOddPrev2
-			I1ForOddPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForEvenPrev3 - jQ)) + (0.8 * previ2)
+			i1ForOddPrev3 = i1ForOddPrev2
+			i1ForOddPrev2 = detrender
 		} else {
 
 			hilbertTempReal = a * smoothedValue
@@ -2037,41 +2767,41 @@ func HtDcPhase(inReal []float64) []float64 {
 			prevDetrenderInputOdd = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Odd[hilbertIdx]
+			q1 = -q1Odd[hilbertIdx]
 			q1Odd[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Odd
-			prevQ1Odd = b * prevQ1InputOdd
-			Q1 += prevQ1Odd
-			prevQ1InputOdd = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForOddPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Odd
+			prevq1Odd = b * prevq1InputOdd
+			q1 += prevq1Odd
+			prevq1InputOdd = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForOddPrev3
 			jI = -jIOdd[hilbertIdx]
 			jIOdd[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIOdd
 			prevJIOdd = b * prevJIInputOdd
 			jI += prevJIOdd
-			prevJIInputOdd = I1ForOddPrev3
+			prevJIInputOdd = i1ForOddPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQOdd[hilbertIdx]
 			jQOdd[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQOdd
 			prevJQOdd = b * prevJQInputOdd
 			jQ += prevJQOdd
-			prevJQInputOdd = Q1
+			prevJQInputOdd = q1
 			jQ *= adjustedPrevPeriod
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForOddPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForEvenPrev3 = I1ForEvenPrev2
-			I1ForEvenPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForOddPrev3 - jQ)) + (0.8 * previ2)
+			i1ForEvenPrev3 = i1ForEvenPrev2
+			i1ForEvenPrev2 = detrender
 		}
-		Re = (0.2 * ((I2 * prevI2) + (Q2 * prevQ2))) + (0.8 * Re)
-		Im = (0.2 * ((I2 * prevQ2) - (Q2 * prevI2))) + (0.8 * Im)
-		prevQ2 = Q2
-		prevI2 = I2
+		Re = (0.2 * ((i2 * previ2) + (q2 * prevq2))) + (0.8 * Re)
+		Im = (0.2 * ((i2 * prevq2) - (q2 * previ2))) + (0.8 * Im)
+		prevq2 = q2
+		previ2 = i2
 		tempReal = period
 		if (Im != 0.0) && (Re != 0.0) {
 			period = 360.0 / (math.Atan(Im/Re) * rad2Deg)
@@ -2109,24 +2839,24 @@ func HtDcPhase(inReal []float64) []float64 {
 		}
 		tempReal = math.Abs(imagPart)
 		if tempReal > 0.0 {
-			DCPhase = math.Atan(realPart/imagPart) * rad2Deg
+			dcPhase = math.Atan(realPart/imagPart) * rad2Deg
 		} else if tempReal <= 0.01 {
 			if realPart < 0.0 {
-				DCPhase -= 90.0
+				dcPhase -= 90.0
 			} else if realPart > 0.0 {
-				DCPhase += 90.0
+				dcPhase += 90.0
 			}
 		}
-		DCPhase += 90.0
-		DCPhase += 360.0 / smoothPeriod
+		dcPhase += 90.0
+		dcPhase += 360.0 / smoothPeriod
 		if imagPart < 0.0 {
-			DCPhase += 180.0
+			dcPhase += 180.0
 		}
-		if DCPhase > 315.0 {
-			DCPhase -= 360.0
+		if dcPhase > 315.0 {
+			dcPhase -= 360.0
 		}
 		if today >= startIdx {
-			outReal[outIdx] = DCPhase
+			outReal[outIdx] = dcPhase
 			outIdx++
 		}
 		smoothPriceIdx++
@@ -2194,11 +2924,11 @@ func HtPhasor(inReal []float64) ([]float64, []float64) {
 	prevDetrenderEven := 0.0
 	prevDetrenderInputOdd := 0.0
 	prevDetrenderInputEven := 0.0
-	Q1 := 0.0
-	prevQ1Odd := 0.0
-	prevQ1Even := 0.0
-	prevQ1InputOdd := 0.0
-	prevQ1InputEven := 0.0
+	q1 := 0.0
+	prevq1Odd := 0.0
+	prevq1Even := 0.0
+	prevq1InputOdd := 0.0
+	prevq1InputEven := 0.0
 	jI := 0.0
 	prevJIOdd := 0.0
 	prevJIEven := 0.0
@@ -2211,16 +2941,16 @@ func HtPhasor(inReal []float64) ([]float64, []float64) {
 	prevJQInputEven := 0.0
 	period := 0.0
 	outIdx := 32
-	prevI2 := 0.0
-	prevQ2 := 0.0
+	previ2 := 0.0
+	prevq2 := 0.0
 	Re := 0.0
 	Im := 0.0
-	I1ForOddPrev3 := 0.0
-	I1ForEvenPrev3 := 0.0
-	I1ForOddPrev2 := 0.0
-	I1ForEvenPrev2 := 0.0
-	I2 := 0.0
-	Q2 := 0.0
+	i1ForOddPrev3 := 0.0
+	i1ForEvenPrev3 := 0.0
+	i1ForOddPrev2 := 0.0
+	i1ForEvenPrev2 := 0.0
+	i2 := 0.0
+	q2 := 0.0
 	for today < len(inReal) {
 		adjustedPrevPeriod := (0.075 * period) + 0.54
 		todayValue := inReal[today]
@@ -2243,46 +2973,46 @@ func HtPhasor(inReal []float64) ([]float64, []float64) {
 			prevDetrenderInputEven = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Even[hilbertIdx]
+			q1 = -q1Even[hilbertIdx]
 			q1Even[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Even
-			prevQ1Even = b * prevQ1InputEven
-			Q1 += prevQ1Even
-			prevQ1InputEven = detrender
-			Q1 *= adjustedPrevPeriod
+			q1 += hilbertTempReal
+			q1 -= prevq1Even
+			prevq1Even = b * prevq1InputEven
+			q1 += prevq1Even
+			prevq1InputEven = detrender
+			q1 *= adjustedPrevPeriod
 
 			if today >= startIdx {
-				outQuadrature[outIdx] = Q1
-				outInPhase[outIdx] = I1ForEvenPrev3
+				outQuadrature[outIdx] = q1
+				outInPhase[outIdx] = i1ForEvenPrev3
 				outIdx++
 			}
-			hilbertTempReal = a * I1ForEvenPrev3
+			hilbertTempReal = a * i1ForEvenPrev3
 			jI = -jIEven[hilbertIdx]
 			jIEven[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIEven
 			prevJIEven = b * prevJIInputEven
 			jI += prevJIEven
-			prevJIInputEven = I1ForEvenPrev3
+			prevJIInputEven = i1ForEvenPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQEven[hilbertIdx]
 			jQEven[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQEven
 			prevJQEven = b * prevJQInputEven
 			jQ += prevJQEven
-			prevJQInputEven = Q1
+			prevJQInputEven = q1
 			jQ *= adjustedPrevPeriod
 			hilbertIdx++
 			if hilbertIdx == 3 {
 				hilbertIdx = 0
 			}
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForEvenPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForOddPrev3 = I1ForOddPrev2
-			I1ForOddPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForEvenPrev3 - jQ)) + (0.8 * previ2)
+			i1ForOddPrev3 = i1ForOddPrev2
+			i1ForOddPrev2 = detrender
 		} else {
 
 			hilbertTempReal = a * smoothedValue
@@ -2295,46 +3025,46 @@ func HtPhasor(inReal []float64) ([]float64, []float64) {
 			prevDetrenderInputOdd = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Odd[hilbertIdx]
+			q1 = -q1Odd[hilbertIdx]
 			q1Odd[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Odd
-			prevQ1Odd = b * prevQ1InputOdd
-			Q1 += prevQ1Odd
-			prevQ1InputOdd = detrender
-			Q1 *= adjustedPrevPeriod
+			q1 += hilbertTempReal
+			q1 -= prevq1Odd
+			prevq1Odd = b * prevq1InputOdd
+			q1 += prevq1Odd
+			prevq1InputOdd = detrender
+			q1 *= adjustedPrevPeriod
 			if today >= startIdx {
-				outQuadrature[outIdx] = Q1
-				outInPhase[outIdx] = I1ForOddPrev3
+				outQuadrature[outIdx] = q1
+				outInPhase[outIdx] = i1ForOddPrev3
 				outIdx++
 			}
-			hilbertTempReal = a * I1ForOddPrev3
+			hilbertTempReal = a * i1ForOddPrev3
 			jI = -jIOdd[hilbertIdx]
 			jIOdd[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIOdd
 			prevJIOdd = b * prevJIInputOdd
 			jI += prevJIOdd
-			prevJIInputOdd = I1ForOddPrev3
+			prevJIInputOdd = i1ForOddPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQOdd[hilbertIdx]
 			jQOdd[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQOdd
 			prevJQOdd = b * prevJQInputOdd
 			jQ += prevJQOdd
-			prevJQInputOdd = Q1
+			prevJQInputOdd = q1
 			jQ *= adjustedPrevPeriod
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForOddPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForEvenPrev3 = I1ForEvenPrev2
-			I1ForEvenPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForOddPrev3 - jQ)) + (0.8 * previ2)
+			i1ForEvenPrev3 = i1ForEvenPrev2
+			i1ForEvenPrev2 = detrender
 		}
-		Re = (0.2 * ((I2 * prevI2) + (Q2 * prevQ2))) + (0.8 * Re)
-		Im = (0.2 * ((I2 * prevQ2) - (Q2 * prevI2))) + (0.8 * Im)
-		prevQ2 = Q2
-		prevI2 = I2
+		Re = (0.2 * ((i2 * previ2) + (q2 * prevq2))) + (0.8 * Re)
+		Im = (0.2 * ((i2 * prevq2) - (q2 * previ2))) + (0.8 * Im)
+		prevq2 = q2
+		previ2 = i2
 		tempReal = period
 		if (Im != 0.0) && (Re != 0.0) {
 			period = 360.0 / (math.Atan(Im/Re) * rad2Deg)
@@ -2420,11 +3150,11 @@ func HtSine(inReal []float64) ([]float64, []float64) {
 	prevDetrenderEven := 0.0
 	prevDetrenderInputOdd := 0.0
 	prevDetrenderInputEven := 0.0
-	Q1 := 0.0
-	prevQ1Odd := 0.0
-	prevQ1Even := 0.0
-	prevQ1InputOdd := 0.0
-	prevQ1InputEven := 0.0
+	q1 := 0.0
+	prevq1Odd := 0.0
+	prevq1Even := 0.0
+	prevq1InputOdd := 0.0
+	prevq1InputEven := 0.0
 	jI := 0.0
 	prevJIOdd := 0.0
 	prevJIEven := 0.0
@@ -2437,19 +3167,19 @@ func HtSine(inReal []float64) ([]float64, []float64) {
 	prevJQInputEven := 0.0
 	period := 0.0
 	outIdx := 63
-	prevI2 := 0.0
-	prevQ2 := 0.0
+	previ2 := 0.0
+	prevq2 := 0.0
 	Re := 0.0
 	Im := 0.0
-	I1ForOddPrev3 := 0.0
-	I1ForEvenPrev3 := 0.0
-	I1ForOddPrev2 := 0.0
-	I1ForEvenPrev2 := 0.0
+	i1ForOddPrev3 := 0.0
+	i1ForEvenPrev3 := 0.0
+	i1ForOddPrev2 := 0.0
+	i1ForEvenPrev2 := 0.0
 	smoothPeriod := 0.0
-	DCPhase := 0.0
+	dcPhase := 0.0
 	hilbertTempReal := 0.0
-	Q2 := 0.0
-	I2 := 0.0
+	q2 := 0.0
+	i2 := 0.0
 	for today < len(inReal) {
 		adjustedPrevPeriod := (0.075 * period) + 0.54
 		todayValue := inReal[today]
@@ -2472,40 +3202,40 @@ func HtSine(inReal []float64) ([]float64, []float64) {
 			prevDetrenderInputEven = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Even[hilbertIdx]
+			q1 = -q1Even[hilbertIdx]
 			q1Even[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Even
-			prevQ1Even = b * prevQ1InputEven
-			Q1 += prevQ1Even
-			prevQ1InputEven = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForEvenPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Even
+			prevq1Even = b * prevq1InputEven
+			q1 += prevq1Even
+			prevq1InputEven = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForEvenPrev3
 			jI = -jIEven[hilbertIdx]
 			jIEven[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIEven
 			prevJIEven = b * prevJIInputEven
 			jI += prevJIEven
-			prevJIInputEven = I1ForEvenPrev3
+			prevJIInputEven = i1ForEvenPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQEven[hilbertIdx]
 			jQEven[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQEven
 			prevJQEven = b * prevJQInputEven
 			jQ += prevJQEven
-			prevJQInputEven = Q1
+			prevJQInputEven = q1
 			jQ *= adjustedPrevPeriod
 			hilbertIdx++
 			if hilbertIdx == 3 {
 				hilbertIdx = 0
 			}
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForEvenPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForOddPrev3 = I1ForOddPrev2
-			I1ForOddPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForEvenPrev3 - jQ)) + (0.8 * previ2)
+			i1ForOddPrev3 = i1ForOddPrev2
+			i1ForOddPrev2 = detrender
 		} else {
 			hilbertTempReal = a * smoothedValue
 			detrender = -detrenderOdd[hilbertIdx]
@@ -2517,41 +3247,41 @@ func HtSine(inReal []float64) ([]float64, []float64) {
 			prevDetrenderInputOdd = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Odd[hilbertIdx]
+			q1 = -q1Odd[hilbertIdx]
 			q1Odd[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Odd
-			prevQ1Odd = b * prevQ1InputOdd
-			Q1 += prevQ1Odd
-			prevQ1InputOdd = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForOddPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Odd
+			prevq1Odd = b * prevq1InputOdd
+			q1 += prevq1Odd
+			prevq1InputOdd = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForOddPrev3
 			jI = -jIOdd[hilbertIdx]
 			jIOdd[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIOdd
 			prevJIOdd = b * prevJIInputOdd
 			jI += prevJIOdd
-			prevJIInputOdd = I1ForOddPrev3
+			prevJIInputOdd = i1ForOddPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQOdd[hilbertIdx]
 			jQOdd[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQOdd
 			prevJQOdd = b * prevJQInputOdd
 			jQ += prevJQOdd
-			prevJQInputOdd = Q1
+			prevJQInputOdd = q1
 			jQ *= adjustedPrevPeriod
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForOddPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForEvenPrev3 = I1ForEvenPrev2
-			I1ForEvenPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForOddPrev3 - jQ)) + (0.8 * previ2)
+			i1ForEvenPrev3 = i1ForEvenPrev2
+			i1ForEvenPrev2 = detrender
 		}
-		Re = (0.2 * ((I2 * prevI2) + (Q2 * prevQ2))) + (0.8 * Re)
-		Im = (0.2 * ((I2 * prevQ2) - (Q2 * prevI2))) + (0.8 * Im)
-		prevQ2 = Q2
-		prevI2 = I2
+		Re = (0.2 * ((i2 * previ2) + (q2 * prevq2))) + (0.8 * Re)
+		Im = (0.2 * ((i2 * prevq2) - (q2 * previ2))) + (0.8 * Im)
+		prevq2 = q2
+		previ2 = i2
 		tempReal = period
 		if (Im != 0.0) && (Re != 0.0) {
 			period = 360.0 / (math.Atan(Im/Re) * rad2Deg)
@@ -2589,25 +3319,25 @@ func HtSine(inReal []float64) ([]float64, []float64) {
 		}
 		tempReal = math.Abs(imagPart)
 		if tempReal > 0.0 {
-			DCPhase = math.Atan(realPart/imagPart) * rad2Deg
+			dcPhase = math.Atan(realPart/imagPart) * rad2Deg
 		} else if tempReal <= 0.01 {
 			if realPart < 0.0 {
-				DCPhase -= 90.0
+				dcPhase -= 90.0
 			} else if realPart > 0.0 {
-				DCPhase += 90.0
+				dcPhase += 90.0
 			}
 		}
-		DCPhase += 90.0
-		DCPhase += 360.0 / smoothPeriod
+		dcPhase += 90.0
+		dcPhase += 360.0 / smoothPeriod
 		if imagPart < 0.0 {
-			DCPhase += 180.0
+			dcPhase += 180.0
 		}
-		if DCPhase > 315.0 {
-			DCPhase -= 360.0
+		if dcPhase > 315.0 {
+			dcPhase -= 360.0
 		}
 		if today >= startIdx {
-			outSine[outIdx] = math.Sin(DCPhase * deg2Rad)
-			outLeadSine[outIdx] = math.Sin((DCPhase + 45) * deg2Rad)
+			outSine[outIdx] = math.Sin(dcPhase * deg2Rad)
+			outLeadSine[outIdx] = math.Sin((dcPhase + 45) * deg2Rad)
 			outIdx++
 		}
 		smoothPriceIdx++
@@ -2641,8 +3371,8 @@ func HtTrendMode(inReal []float64) []float64 {
 	iTrend2 := 0.0
 	iTrend3 := 0.0
 	daysInTrend := 0
-	prevDCPhase := 0.0
-	DCPhase := 0.0
+	prevdcPhase := 0.0
+	dcPhase := 0.0
 	prevSine := 0.0
 	sine := 0.0
 	prevLeadSine := 0.0
@@ -2690,11 +3420,11 @@ func HtTrendMode(inReal []float64) []float64 {
 	prevDetrenderEven := 0.0
 	prevDetrenderInputOdd := 0.0
 	prevDetrenderInputEven := 0.0
-	Q1 := 0.0
-	prevQ1Odd := 0.0
-	prevQ1Even := 0.0
-	prevQ1InputOdd := 0.0
-	prevQ1InputEven := 0.0
+	q1 := 0.0
+	prevq1Odd := 0.0
+	prevq1Even := 0.0
+	prevq1InputOdd := 0.0
+	prevq1InputEven := 0.0
 	jI := 0.0
 	prevJIOdd := 0.0
 	prevJIEven := 0.0
@@ -2707,20 +3437,20 @@ func HtTrendMode(inReal []float64) []float64 {
 	prevJQInputEven := 0.0
 	period := 0.0
 	outIdx := 63
-	prevI2 := 0.0
-	prevQ2 := 0.0
+	previ2 := 0.0
+	prevq2 := 0.0
 	Re := 0.0
 	Im := 0.0
-	I1ForOddPrev3 := 0.0
-	I1ForEvenPrev3 := 0.0
-	I1ForOddPrev2 := 0.0
-	I1ForEvenPrev2 := 0.0
+	i1ForOddPrev3 := 0.0
+	i1ForEvenPrev3 := 0.0
+	i1ForOddPrev2 := 0.0
+	i1ForEvenPrev2 := 0.0
 	smoothPeriod := 0.0
-	DCPhase = 0.0
+	dcPhase = 0.0
 	smoothedValue := 0.0
 	hilbertTempReal := 0.0
-	Q2 := 0.0
-	I2 := 0.0
+	q2 := 0.0
+	i2 := 0.0
 	for today < len(inReal) {
 		adjustedPrevPeriod := (0.075 * period) + 0.54
 		todayValue := inReal[today]
@@ -2744,40 +3474,40 @@ func HtTrendMode(inReal []float64) []float64 {
 			prevDetrenderInputEven = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Even[hilbertIdx]
+			q1 = -q1Even[hilbertIdx]
 			q1Even[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Even
-			prevQ1Even = b * prevQ1InputEven
-			Q1 += prevQ1Even
-			prevQ1InputEven = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForEvenPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Even
+			prevq1Even = b * prevq1InputEven
+			q1 += prevq1Even
+			prevq1InputEven = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForEvenPrev3
 			jI = -jIEven[hilbertIdx]
 			jIEven[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIEven
 			prevJIEven = b * prevJIInputEven
 			jI += prevJIEven
-			prevJIInputEven = I1ForEvenPrev3
+			prevJIInputEven = i1ForEvenPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQEven[hilbertIdx]
 			jQEven[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQEven
 			prevJQEven = b * prevJQInputEven
 			jQ += prevJQEven
-			prevJQInputEven = Q1
+			prevJQInputEven = q1
 			jQ *= adjustedPrevPeriod
 			hilbertIdx++
 			if hilbertIdx == 3 {
 				hilbertIdx = 0
 			}
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForEvenPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForOddPrev3 = I1ForOddPrev2
-			I1ForOddPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForEvenPrev3 - jQ)) + (0.8 * previ2)
+			i1ForOddPrev3 = i1ForOddPrev2
+			i1ForOddPrev2 = detrender
 		} else {
 			hilbertTempReal = a * smoothedValue
 			detrender = -detrenderOdd[hilbertIdx]
@@ -2789,41 +3519,41 @@ func HtTrendMode(inReal []float64) []float64 {
 			prevDetrenderInputOdd = smoothedValue
 			detrender *= adjustedPrevPeriod
 			hilbertTempReal = a * detrender
-			Q1 = -q1Odd[hilbertIdx]
+			q1 = -q1Odd[hilbertIdx]
 			q1Odd[hilbertIdx] = hilbertTempReal
-			Q1 += hilbertTempReal
-			Q1 -= prevQ1Odd
-			prevQ1Odd = b * prevQ1InputOdd
-			Q1 += prevQ1Odd
-			prevQ1InputOdd = detrender
-			Q1 *= adjustedPrevPeriod
-			hilbertTempReal = a * I1ForOddPrev3
+			q1 += hilbertTempReal
+			q1 -= prevq1Odd
+			prevq1Odd = b * prevq1InputOdd
+			q1 += prevq1Odd
+			prevq1InputOdd = detrender
+			q1 *= adjustedPrevPeriod
+			hilbertTempReal = a * i1ForOddPrev3
 			jI = -jIOdd[hilbertIdx]
 			jIOdd[hilbertIdx] = hilbertTempReal
 			jI += hilbertTempReal
 			jI -= prevJIOdd
 			prevJIOdd = b * prevJIInputOdd
 			jI += prevJIOdd
-			prevJIInputOdd = I1ForOddPrev3
+			prevJIInputOdd = i1ForOddPrev3
 			jI *= adjustedPrevPeriod
-			hilbertTempReal = a * Q1
+			hilbertTempReal = a * q1
 			jQ = -jQOdd[hilbertIdx]
 			jQOdd[hilbertIdx] = hilbertTempReal
 			jQ += hilbertTempReal
 			jQ -= prevJQOdd
 			prevJQOdd = b * prevJQInputOdd
 			jQ += prevJQOdd
-			prevJQInputOdd = Q1
+			prevJQInputOdd = q1
 			jQ *= adjustedPrevPeriod
-			Q2 = (0.2 * (Q1 + jI)) + (0.8 * prevQ2)
-			I2 = (0.2 * (I1ForOddPrev3 - jQ)) + (0.8 * prevI2)
-			I1ForEvenPrev3 = I1ForEvenPrev2
-			I1ForEvenPrev2 = detrender
+			q2 = (0.2 * (q1 + jI)) + (0.8 * prevq2)
+			i2 = (0.2 * (i1ForOddPrev3 - jQ)) + (0.8 * previ2)
+			i1ForEvenPrev3 = i1ForEvenPrev2
+			i1ForEvenPrev2 = detrender
 		}
-		Re = (0.2 * ((I2 * prevI2) + (Q2 * prevQ2))) + (0.8 * Re)
-		Im = (0.2 * ((I2 * prevQ2) - (Q2 * prevI2))) + (0.8 * Im)
-		prevQ2 = Q2
-		prevI2 = I2
+		Re = (0.2 * ((i2 * previ2) + (q2 * prevq2))) + (0.8 * Re)
+		Im = (0.2 * ((i2 * prevq2) - (q2 * previ2))) + (0.8 * Im)
+		prevq2 = q2
+		previ2 = i2
 		tempReal = period
 		if (Im != 0.0) && (Re != 0.0) {
 			period = 360.0 / (math.Atan(Im/Re) * rad2Deg)
@@ -2843,7 +3573,7 @@ func HtTrendMode(inReal []float64) []float64 {
 		}
 		period = (0.2 * period) + (0.8 * tempReal)
 		smoothPeriod = (0.33 * period) + (0.67 * smoothPeriod)
-		prevDCPhase = DCPhase
+		prevdcPhase = dcPhase
 		DCPeriod := smoothPeriod + 0.5
 		DCPeriodInt := math.Floor(DCPeriod)
 		realPart := 0.0
@@ -2862,26 +3592,26 @@ func HtTrendMode(inReal []float64) []float64 {
 		}
 		tempReal = math.Abs(imagPart)
 		if tempReal > 0.0 {
-			DCPhase = math.Atan(realPart/imagPart) * rad2Deg
+			dcPhase = math.Atan(realPart/imagPart) * rad2Deg
 		} else if tempReal <= 0.01 {
 			if realPart < 0.0 {
-				DCPhase -= 90.0
+				dcPhase -= 90.0
 			} else if realPart > 0.0 {
-				DCPhase += 90.0
+				dcPhase += 90.0
 			}
 		}
-		DCPhase += 90.0
-		DCPhase += 360.0 / smoothPeriod
+		dcPhase += 90.0
+		dcPhase += 360.0 / smoothPeriod
 		if imagPart < 0.0 {
-			DCPhase += 180.0
+			dcPhase += 180.0
 		}
-		if DCPhase > 315.0 {
-			DCPhase -= 360.0
+		if dcPhase > 315.0 {
+			dcPhase -= 360.0
 		}
 		prevSine = sine
 		prevLeadSine = leadSine
-		sine = math.Sin(DCPhase * deg2Rad)
-		leadSine = math.Sin((DCPhase + 45) * deg2Rad)
+		sine = math.Sin(dcPhase * deg2Rad)
+		leadSine = math.Sin((dcPhase + 45) * deg2Rad)
 		DCPeriod = smoothPeriod + 0.5
 		DCPeriodInt = math.Floor(DCPeriod)
 		idx = today
@@ -2906,7 +3636,7 @@ func HtTrendMode(inReal []float64) []float64 {
 		if float64(daysInTrend) < (0.5 * smoothPeriod) {
 			trend = 0
 		}
-		tempReal = DCPhase - prevDCPhase
+		tempReal = dcPhase - prevdcPhase
 		if (smoothPeriod != 0.0) && ((tempReal > (0.67 * 360.0 / smoothPeriod)) && (tempReal < (1.5 * 360.0 / smoothPeriod))) {
 			trend = 0
 		}
@@ -3444,13 +4174,7 @@ func Tanh(inReal []float64) []float64 {
 	return outReal
 }
 
-/* Math Operator Functions
-TODO:
-  MINMAX - Lowest and highest values over a specified period
-    min, max = MINMAX(close, timeperiod=30)
-  MINMAXINDEX - Indexes of lowest and highest values over a specified period
-    minidx, maxidx = MINMAXINDEX(close, timeperiod=30)
-*/
+/* Math Operator Functions */
 
 // Add - Vector arithmetic addition
 func Add(inReal0 []float64, inReal1 []float64) []float64 {
@@ -3644,6 +4368,126 @@ func MinIndex(inReal []float64, optInTimePeriod int) []float64 {
 		today++
 	}
 	return outReal
+}
+
+// MinMax - Lowest and highest values over a specified period
+func MinMax(inReal []float64, optInTimePeriod int) ([]float64, []float64) {
+
+	outMin := make([]float64, len(inReal))
+	outMax := make([]float64, len(inReal))
+
+	nbInitialElementNeeded := (optInTimePeriod - 1)
+	startIdx := nbInitialElementNeeded
+	outIdx := startIdx
+	today := startIdx
+	trailingIdx := startIdx - nbInitialElementNeeded
+	highestIdx := -1
+	highest := 0.0
+	lowestIdx := -1
+	lowest := 0.0
+	for today < len(inReal) {
+		tmpLow, tmpHigh := inReal[today], inReal[today]
+		if highestIdx < trailingIdx {
+			highestIdx = trailingIdx
+			highest = inReal[highestIdx]
+			i := highestIdx
+			i++
+			for i <= today {
+				tmpHigh = inReal[i]
+				if tmpHigh > highest {
+					highestIdx = i
+					highest = tmpHigh
+				}
+				i++
+			}
+		} else if tmpHigh >= highest {
+			highestIdx = today
+			highest = tmpHigh
+		}
+		if lowestIdx < trailingIdx {
+			lowestIdx = trailingIdx
+			lowest = inReal[lowestIdx]
+			i := lowestIdx
+			i++
+			for i <= today {
+				tmpLow = inReal[i]
+				if tmpLow < lowest {
+					lowestIdx = i
+					lowest = tmpLow
+				}
+				i++
+			}
+		} else if tmpLow <= lowest {
+			lowestIdx = today
+			lowest = tmpLow
+		}
+		outMax[outIdx] = highest
+		outMin[outIdx] = lowest
+		outIdx++
+		trailingIdx++
+		today++
+	}
+	return outMin, outMax
+}
+
+// MinMaxIndex - Indexes of lowest and highest values over a specified period
+func MinMaxIndex(inReal []float64, optInTimePeriod int) ([]float64, []float64) {
+
+	outMinIdx := make([]float64, len(inReal))
+	outMaxIdx := make([]float64, len(inReal))
+
+	nbInitialElementNeeded := (optInTimePeriod - 1)
+	startIdx := nbInitialElementNeeded
+	outIdx := startIdx
+	today := startIdx
+	trailingIdx := startIdx - nbInitialElementNeeded
+	highestIdx := -1
+	highest := 0.0
+	lowestIdx := -1
+	lowest := 0.0
+	for today < len(inReal) {
+		tmpLow, tmpHigh := inReal[today], inReal[today]
+		if highestIdx < trailingIdx {
+			highestIdx = trailingIdx
+			highest = inReal[highestIdx]
+			i := highestIdx
+			i++
+			for i <= today {
+				tmpHigh = inReal[i]
+				if tmpHigh > highest {
+					highestIdx = i
+					highest = tmpHigh
+				}
+				i++
+			}
+		} else if tmpHigh >= highest {
+			highestIdx = today
+			highest = tmpHigh
+		}
+		if lowestIdx < trailingIdx {
+			lowestIdx = trailingIdx
+			lowest = inReal[lowestIdx]
+			i := lowestIdx
+			i++
+			for i <= today {
+				tmpLow = inReal[i]
+				if tmpLow < lowest {
+					lowestIdx = i
+					lowest = tmpLow
+				}
+				i++
+			}
+		} else if tmpLow <= lowest {
+			lowestIdx = today
+			lowest = tmpLow
+		}
+		outMaxIdx[outIdx] = float64(highestIdx)
+		outMinIdx[outIdx] = float64(lowestIdx)
+		outIdx++
+		trailingIdx++
+		today++
+	}
+	return outMinIdx, outMaxIdx
 }
 
 // Mult - Vector arithmetic multiply

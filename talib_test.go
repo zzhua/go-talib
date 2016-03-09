@@ -497,3 +497,33 @@ func TestMinMaxIndex(t *testing.T) {
 	compare(t, minidx, "result,maxidx = talib.MINMAXINDEX(testClose,10)")
 	compare(t, maxidx, "minidx,result = talib.MINMAXINDEX(testClose,10)")
 }
+
+func TestApo(t *testing.T) {
+	result := Apo(testClose, 12, 26, SMA)
+	compare(t, result, "result = talib.APO(testClose,12,26,talib.MA_Type.SMA)")
+	result = Apo(testClose, 26, 12, SMA)
+	compare(t, result, "result = talib.APO(testClose,26,12,talib.MA_Type.SMA)")
+}
+
+func TestPpo(t *testing.T) {
+	result := Ppo(testClose, 12, 26, SMA)
+	compare(t, result, "result = talib.PPO(testClose,12,26,talib.MA_Type.SMA)")
+	result = Ppo(testClose, 26, 12, SMA)
+	compare(t, result, "result = talib.PPO(testClose,26,12,talib.MA_Type.SMA)")
+}
+
+func TestAroon(t *testing.T) {
+	dn, up := Aroon(testHigh, testLow, 14)
+	compare(t, dn, "result,up = talib.AROON(testHigh,testLow,14)")
+	compare(t, up, "dn,result = talib.AROON(testHigh,testLow,14)")
+}
+
+func TestAroonOsc(t *testing.T) {
+	result := AroonOsc(testHigh, testLow, 14)
+	compare(t, result, "result = talib.AROONOSC(testHigh,testLow,14)")
+}
+
+func TestBop(t *testing.T) {
+	result := Bop(testOpen,testHigh,testLow,testClose)
+	compare(t, result, "result = talib.BOP(testOpen,testHigh,testLow,testClose)")
+}

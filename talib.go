@@ -1426,14 +1426,6 @@ func Wma(inReal []float64, optInTimePeriod int) []float64 {
 
 /* Momentum Indicators
 TODO:
-  APO - Absolute Price Oscillator
-    real = APO(close, fastperiod=12, slowperiod=26, matype=0)
-  AROON - Aroon
-    aroondown, aroonup = AROON(high, low, timeperiod=14)
-  AROONOSC - Aroon Oscillator
-    real = AROONOSC(high, low, timeperiod=14)
-  BOP - Balance Of Power
-    real = BOP(open, high, low, close)
   CMO - Chande Momentum Oscillator
     real = CMO(close, timeperiod=14)
   DX - Directional Movement Index
@@ -1450,8 +1442,6 @@ TODO:
     real = MINUS_DI(high, low, close, timeperiod=14)
   PLUS_DI - Plus Directional Indicator
     real = PLUS_DI(high, low, close, timeperiod=14)
-  PPO - Percentage Price Oscillator
-    real = PPO(close, fastperiod=12, slowperiod=26, matype=0)
   STOCH - Stochastic
     slowk, slowd = STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
   STOCHF - Stochastic Fast
@@ -1602,6 +1592,161 @@ func AdxR(inHigh []float64, inLow []float64, inClose []float64, optInTimePeriod 
 		outReal[outIdx] = ((tmpadx[i] + tmpadx[j]) / 2.0)
 	}
 	return outReal
+}
+
+// Apo - Absolute Price Oscillator
+func Apo(inReal []float64, optInFastPeriod int, optInSlowPeriod int, optInMAType MaType) []float64 {
+
+	if optInSlowPeriod < optInFastPeriod {
+		optInSlowPeriod, optInFastPeriod = optInFastPeriod, optInSlowPeriod
+	}
+	tempBuffer := MA(inReal, optInFastPeriod, optInMAType)
+	outReal := MA(inReal, optInSlowPeriod, optInMAType)
+	for i := optInSlowPeriod - 1; i < len(inReal); i++ {
+		outReal[i] = tempBuffer[i] - outReal[i]
+	}
+
+	return outReal
+}
+
+// Aroon - Aroon
+// aroondown, aroonup = AROON(high, low, timeperiod=14)
+func Aroon(inHigh []float64, inLow []float64, optInTimePeriod int) ([]float64, []float64) {
+
+	outAroonUp := make([]float64, len(inHigh))
+	outAroonDown := make([]float64, len(inHigh))
+
+	startIdx := optInTimePeriod
+	outIdx := startIdx
+	today := startIdx
+	trailingIdx := startIdx - optInTimePeriod
+	lowestIdx := -1
+	highestIdx := -1
+	lowest := 0.0
+	highest := 0.0
+	factor := 100.0 / float64(optInTimePeriod)
+	for today < len(inHigh) {
+		tmp := inLow[today]
+		if lowestIdx < trailingIdx {
+			lowestIdx = trailingIdx
+			lowest = inLow[lowestIdx]
+			i := lowestIdx
+			i++
+			for i <= today {
+				tmp = inLow[i]
+				if tmp <= lowest {
+					lowestIdx = i
+					lowest = tmp
+				}
+				i++
+			}
+		} else if tmp <= lowest {
+			lowestIdx = today
+			lowest = tmp
+		}
+		tmp = inHigh[today]
+		if highestIdx < trailingIdx {
+			highestIdx = trailingIdx
+			highest = inHigh[highestIdx]
+			i := highestIdx
+			i++
+			for i <= today {
+				tmp = inHigh[i]
+				if tmp >= highest {
+					highestIdx = i
+					highest = tmp
+				}
+				i++
+			}
+		} else if tmp >= highest {
+			highestIdx = today
+			highest = tmp
+		}
+		outAroonUp[outIdx] = factor * float64(optInTimePeriod-(today-highestIdx))
+		outAroonDown[outIdx] = factor * float64(optInTimePeriod-(today-lowestIdx))
+		outIdx++
+		trailingIdx++
+		today++
+	}
+	return outAroonDown, outAroonUp
+}
+
+// AroonOsc - Aroon Oscillator
+func AroonOsc(inHigh []float64, inLow []float64, optInTimePeriod int) []float64 {
+
+	outReal := make([]float64, len(inHigh))
+
+	startIdx := optInTimePeriod
+	outIdx := startIdx
+	today := startIdx
+	trailingIdx := startIdx - optInTimePeriod
+	lowestIdx := -1
+	highestIdx := -1
+	lowest := 0.0
+	highest := 0.0
+	factor := 100.0 / float64(optInTimePeriod)
+	for today < len(inHigh) {
+		tmp := inLow[today]
+		if lowestIdx < trailingIdx {
+			lowestIdx = trailingIdx
+			lowest = inLow[lowestIdx]
+			i := lowestIdx
+			i++
+			for i <= today {
+				tmp = inLow[i]
+				if tmp <= lowest {
+					lowestIdx = i
+					lowest = tmp
+				}
+				i++
+			}
+		} else if tmp <= lowest {
+			lowestIdx = today
+			lowest = tmp
+		}
+		tmp = inHigh[today]
+		if highestIdx < trailingIdx {
+			highestIdx = trailingIdx
+			highest = inHigh[highestIdx]
+			i := highestIdx
+			i++
+			for i <= today {
+				tmp = inHigh[i]
+				if tmp >= highest {
+					highestIdx = i
+					highest = tmp
+				}
+				i++
+			}
+		} else if tmp >= highest {
+			highestIdx = today
+			highest = tmp
+		}
+		aroon := factor * float64(highestIdx-lowestIdx)
+		outReal[outIdx] = aroon
+		outIdx++
+		trailingIdx++
+		today++
+	}
+
+	return outReal
+}
+
+// Bop - Balance Of Power
+func Bop(inOpen []float64,inHigh []float64,inLow []float64,inClose []float64) []float64 {
+
+  outReal := make([]float64,len(inClose))
+  
+  for i := 0; i < len(inClose); i++ {
+    tempReal := inHigh[i] - inLow[i];
+    if ((tempReal < (0.00000000000001))) {
+      outReal[i] = 0.0;
+    } else { 
+      outReal[i] = (inClose[i] - inOpen[i]) / tempReal;
+    }
+  }
+  
+  return outReal
 }
 
 // Cci - Commodity Channel Index
@@ -1850,6 +1995,27 @@ func PlusDM(inHigh []float64, inLow []float64, optInTimePeriod int) []float64 {
 		outReal[outIdx] = prevPlusDM
 		outIdx++
 	}
+	return outReal
+}
+
+// Ppo - Percentage Price Oscillator
+func Ppo(inReal []float64, optInFastPeriod int, optInSlowPeriod int, optInMAType MaType) []float64 {
+
+	if optInSlowPeriod < optInFastPeriod {
+		optInSlowPeriod, optInFastPeriod = optInFastPeriod, optInSlowPeriod
+	}
+	tempBuffer := MA(inReal, optInFastPeriod, optInMAType)
+	outReal := MA(inReal, optInSlowPeriod, optInMAType)
+
+	for i := optInSlowPeriod - 1; i < len(inReal); i++ {
+		tempReal := outReal[i]
+		if !(((-(0.00000000000001)) < tempReal) && (tempReal < (0.00000000000001))) {
+			outReal[i] = ((tempBuffer[i] - tempReal) / tempReal) * 100.0
+		} else {
+			outReal[i] = 0.0
+		}
+	}
+
 	return outReal
 }
 

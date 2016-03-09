@@ -526,6 +526,6 @@ func TestAroonOsc(t *testing.T) {
 }
 
 func TestBop(t *testing.T) {
-	result := Bop(testOpen,testHigh,testLow,testClose)
+	result := Bop(testOpen, testHigh, testLow, testClose)
 	compare(t, result, "result = talib.BOP(testOpen,testHigh,testLow,testClose)")
 }

@@ -1735,20 +1735,20 @@ func AroonOsc(inHigh []float64, inLow []float64, optInTimePeriod int) []float64 
 }
 
 // Bop - Balance Of Power
-func Bop(inOpen []float64,inHigh []float64,inLow []float64,inClose []float64) []float64 {
+func Bop(inOpen []float64, inHigh []float64, inLow []float64, inClose []float64) []float64 {
 
-  outReal := make([]float64,len(inClose))
-  
-  for i := 0; i < len(inClose); i++ {
-    tempReal := inHigh[i] - inLow[i];
-    if ((tempReal < (0.00000000000001))) {
-      outReal[i] = 0.0;
-    } else { 
-      outReal[i] = (inClose[i] - inOpen[i]) / tempReal;
-    }
-  }
-  
-  return outReal
+	outReal := make([]float64, len(inClose))
+
+	for i := 0; i < len(inClose); i++ {
+		tempReal := inHigh[i] - inLow[i]
+		if tempReal < (0.00000000000001) {
+			outReal[i] = 0.0
+		} else {
+			outReal[i] = (inClose[i] - inOpen[i]) / tempReal
+		}
+	}
+
+	return outReal
 }
 
 // Cci - Commodity Channel Index

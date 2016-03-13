@@ -69,6 +69,14 @@ print(' '.join([str(p) for p in result]).replace('nan','0.0'))`,
 	equals(t, len(goResult), len(pyResult))
 
 	for i := 0; i < len(goResult); i++ {
+
+		if (goResult[i] < -0.00000000000001) || (goResult[i] < 0.00000000000001) {
+			goResult[i] = 0.0
+		}
+		if (pyResult[i] < -0.00000000000001) || (pyResult[i] < 0.00000000000001) {
+			pyResult[i] = 0.0
+		}
+
 		s1 := fmt.Sprintf("%.6f", goResult[i])
 		s2 := fmt.Sprintf("%.6f", pyResult[i])
 		//equals(t, s1, s2)
@@ -101,6 +109,12 @@ func TestSma(t *testing.T) {
 func TestEma(t *testing.T) {
 	result := Ema(testClose, 5)
 	compare(t, result, "result = talib.EMA(testClose,5)")
+	result = Ema(testClose, 20)
+	compare(t, result, "result = talib.EMA(testClose,20)")
+	result = Ema(testClose, 50)
+	compare(t, result, "result = talib.EMA(testClose,50)")
+	result = Ema(testClose, 100)
+	compare(t, result, "result = talib.EMA(testClose,100)")
 }
 
 func TestRsi(t *testing.T) {
@@ -558,6 +572,24 @@ func TestUltOsc(t *testing.T) {
 	compare(t, result, "result = talib.ULTOSC(testHigh,testLow,testClose,7,14,28)")
 }
 
+func TestStoch(t *testing.T) {
+	slowk, slowd := Stoch(testHigh, testLow, testClose, 5, 3, SMA, 3, SMA)
+	compare(t, slowk, "result,slowd = talib.STOCH(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA,3,talib.MA_Type.SMA)")
+	compare(t, slowd, "slowk,result = talib.STOCH(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA,3,talib.MA_Type.SMA)")
+}
+
+func TestStochF(t *testing.T) {
+	fastk, fastd := StochF(testHigh, testLow, testClose, 5, 3, SMA)
+	compare(t, fastk, "result,fastd = talib.STOCHF(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA)")
+	compare(t, fastd, "fastk,result = talib.STOCHF(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA)")
+}
+
+func TestStochRsi(t *testing.T) {
+	fastk, fastd := StochRsi(testClose, 14, 5, 2, SMA)
+	compare(t, fastk, "result,fastd = talib.STOCHRSI(testClose,14,5,2,talib.MA_Type.SMA)")
+	compare(t, fastd, "fastk,result = talib.STOCHRSI(testClose,14,5,2,talib.MA_Type.SMA)")
+}
+
 func TestMacd(t *testing.T) {
 	macd, macdsignal, macdhist := Macd(testClose, 12, 26, 9)
 	unstable := 100
@@ -587,25 +619,3 @@ func TestTrix(t *testing.T) {
 	unstable := 250
 	compare(t, result[unstable:], fmt.Sprintf("result = talib.TRIX(testClose,30); result = result[%d:]", unstable))
 }
-
-/*
-func TestStoch(t *testing.T) {
-	slowk, slowd := Stoch(testHigh, testLow, testClose, 5, 3, SMA, 3, SMA)
-	fmt.Println(slowd)
-	compare(t, slowk, "result,slowd = talib.STOCH(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA,3,talib.MA_Type.SMA)")
-	compare(t, slowd, "slowk,result = talib.STOCH(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA,3,talib.MA_Type.SMA)")
-}
-
-func TestStochF(t *testing.T) {
-	fastk, slowk := StochF(testHigh, testLow, testClose, 5, 3, SMA)
-	fmt.Println(fastk)
-	compare(t, fastk, "result,slowk = talib.STOCHF(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA)")
-	compare(t, slowk, "fastk,result = talib.STOCHF(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA)")
-}
-
-func TestStochRsi(t *testing.T) {
-	fastk, fastd := StochRsi(testClose, 14, 5, 2, SMA)
-	compare(t, fastk, "result,fastd = talib.STOCHRSI(testClose,14,5,2,talib.MA_Type.SMA)")
-	compare(t, fastd, "fastk,result = talib.STOCHRSI(testClose,14,5,2,talib.MA_Type.SMA)")
-}
-*/

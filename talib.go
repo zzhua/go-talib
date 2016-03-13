@@ -1995,10 +1995,13 @@ func Macd(inReal []float64, inFastPeriod int, inSlowPeriod int, inSignalPeriod i
 	} else {
 		inFastPeriod = 12
 	}
-	lookbackTotal := inSignalPeriod + inSlowPeriod
+
+	lookbackTotal := (inSignalPeriod - 1) + (inSlowPeriod - 1)
+
 	outMACD := make([]float64, len(inReal))
 	fastEMABuffer := ema(inReal, inFastPeriod, k2)
 	slowEMABuffer := ema(inReal, inSlowPeriod, k1)
+
 	for i := lookbackTotal; i < len(slowEMABuffer); i++ {
 		outMACD[i] = fastEMABuffer[i] - slowEMABuffer[i]
 	}
@@ -2878,6 +2881,9 @@ func Rsi(inReal []float64, inTimePeriod int) []float64 {
 // Stoch - Stochastic
 func Stoch(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod int, inSlowKPeriod int, inSlowKMAType MaType, inSlowDPeriod int, inSlowDMAType MaType) ([]float64, []float64) {
 
+	outSlowK := make([]float64, len(inClose))
+	outSlowD := make([]float64, len(inClose))
+
 	lookbackK := inFastKPeriod - 1
 	lookbackKSlow := inSlowKPeriod - 1
 	lookbackDSlow := inSlowDPeriod - 1
@@ -2888,9 +2894,85 @@ func Stoch(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod i
 	today := trailingIdx + lookbackK
 	lowestIdx, highestIdx := -1, -1
 	diff, highest, lowest := 0.0, 0.0, 0.0
+	tempBuffer := make([]float64, len(inClose)-today+1)
+	for today < len(inClose) {
+		tmp := inLow[today]
+		if lowestIdx < trailingIdx {
+			lowestIdx = trailingIdx
+			lowest = inLow[lowestIdx]
+			i := lowestIdx + 1
+			for i <= today {
+
+				tmp := inLow[i]
+				if tmp < lowest {
+					lowestIdx = i
+					lowest = tmp
+				}
+				i++
+			}
+			diff = (highest - lowest) / 100.0
+		} else if tmp <= lowest {
+			lowestIdx = today
+			lowest = tmp
+			diff = (highest - lowest) / 100.0
+		}
+		tmp = inHigh[today]
+		if highestIdx < trailingIdx {
+			highestIdx = trailingIdx
+			highest = inHigh[highestIdx]
+			i := highestIdx + 1
+			for i <= today {
+				tmp := inHigh[i]
+				if tmp > highest {
+					highestIdx = i
+					highest = tmp
+				}
+				i++
+			}
+			diff = (highest - lowest) / 100.0
+		} else if tmp >= highest {
+			highestIdx = today
+			highest = tmp
+			diff = (highest - lowest) / 100.0
+		}
+		if diff != 0.0 {
+			tempBuffer[outIdx] = (inClose[today] - lowest) / diff
+		} else {
+			tempBuffer[outIdx] = 0.0
+		}
+		outIdx++
+		trailingIdx++
+		today++
+	}
+
+	tempBuffer1 := MA(tempBuffer, inSlowKPeriod, inSlowKMAType)
+	tempBuffer2 := MA(tempBuffer1, inSlowDPeriod, inSlowDMAType)
+	for i, j := lookbackK, lookbackTotal; j < len(inClose); i, j = i+1, j+1 {
+		outSlowK[j] = tempBuffer1[i]
+		outSlowD[j] = tempBuffer2[i]
+	}
+
+	return outSlowK, outSlowD
+}
+
+// StochF - Stochastic Fast
+func StochF(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod int, inFastDPeriod int, inFastDMAType MaType) ([]float64, []float64) {
+
+	outFastK := make([]float64, len(inClose))
+	outFastD := make([]float64, len(inClose))
+
+	lookbackK := inFastKPeriod - 1
+	lookbackFastD := inFastDPeriod - 1
+	lookbackTotal := lookbackK + lookbackFastD
+	startIdx := lookbackTotal
+	outIdx := 0
+	trailingIdx := startIdx - lookbackTotal
+	today := trailingIdx + lookbackK
+	lowestIdx, highestIdx := -1, -1
+	diff, highest, lowest := 0.0, 0.0, 0.0
 	tempBuffer := make([]float64, (len(inClose) - today + 1))
 
-	for today < len(inClose)-1 {
+	for today < len(inClose) {
 		tmp := inLow[today]
 		if lowestIdx < trailingIdx {
 			lowestIdx = trailingIdx
@@ -2933,86 +3015,6 @@ func Stoch(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod i
 		}
 		if diff != 0.0 {
 			tempBuffer[outIdx] = (inClose[today] - lowest) / diff
-		} else {
-			tempBuffer[outIdx] = 0.0
-		}
-		outIdx++
-		trailingIdx++
-		today++
-	}
-
-	tempBuffer = MA(tempBuffer, inSlowDPeriod, inSlowDMAType)
-	outSlowD := make([]float64, len(inClose))
-	for i := lookbackDSlow; i < len(tempBuffer); i++ {
-		outSlowD[i] = tempBuffer[i]
-	}
-
-	tempBuffer = MA(tempBuffer, inSlowKPeriod, inSlowKMAType)
-	outSlowK := make([]float64, len(inClose))
-	for i := lookbackKSlow; i < len(tempBuffer); i++ {
-		outSlowK[i] = tempBuffer[i]
-	}
-
-	return outSlowK, outSlowD
-}
-
-// StochF - Stochastic Fast
-func StochF(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod int, inFastDPeriod int, inFastDMAType MaType) ([]float64, []float64) {
-
-	lookbackK := inFastKPeriod - 1
-	lookbackFastD := inFastDPeriod - 1
-	lookbackTotal := lookbackK + lookbackFastD
-	startIdx := lookbackTotal
-	outIdx := startIdx
-	trailingIdx := startIdx - lookbackTotal
-	today := trailingIdx + lookbackK
-	lowestIdx, highestIdx := -1, -1
-	diff, highest, lowest := 0.0, 0.0, 0.0
-	tempBuffer := make([]float64, (len(inClose) - today + 1))
-
-	for today < len(inClose) {
-		tmp := inLow[today]
-		if lowestIdx < trailingIdx {
-			lowestIdx := trailingIdx
-			lowest := inLow[lowestIdx]
-			i := lowestIdx
-			i++
-			for i <= today {
-				tmp = inLow[i]
-				if tmp < lowest {
-					lowestIdx = i
-					lowest = tmp
-				}
-				i++
-			}
-			diff = (highest - lowest) / 100.0
-		} else if tmp <= lowest {
-			lowestIdx = today
-			lowest = tmp
-			diff = (highest - lowest) / 100.0
-		}
-		tmp = inHigh[today]
-		if highestIdx < trailingIdx {
-			highestIdx = trailingIdx
-			highest = inHigh[highestIdx]
-			i := highestIdx
-			i++
-			for i <= today {
-				tmp = inHigh[i]
-				if tmp > highest {
-					highestIdx = i
-					highest = tmp
-				}
-				i++
-			}
-			diff = (highest - lowest) / 100.0
-		} else if tmp >= highest {
-			highestIdx = today
-			highest = tmp
-			diff = (highest - lowest) / 100.0
-		}
-		if diff != 0.0 {
-			tempBuffer[outIdx] = (inClose[today] - lowest) / diff
 
 		} else {
 			tempBuffer[outIdx] = 0.0
@@ -3021,11 +3023,11 @@ func StochF(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod 
 		trailingIdx++
 		today++
 	}
-	outFastD := MA(tempBuffer, inFastDPeriod, inFastDMAType)
 
-	outFastK := make([]float64, len(inClose))
-	for i := lookbackFastD; i < len(inClose); i++ {
-		outFastK[i] = tempBuffer[i]
+	tempBuffer1 := MA(tempBuffer, inFastDPeriod, inFastDMAType)
+	for i, j := lookbackFastD, lookbackTotal; j < len(inClose); i, j = i+1, j+1 {
+		outFastK[j] = tempBuffer[i]
+		outFastD[j] = tempBuffer1[i]
 	}
 
 	return outFastK, outFastD
@@ -3034,15 +3036,22 @@ func StochF(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod 
 // StochRsi - Stochastic Relative Strength Index
 func StochRsi(inReal []float64, inTimePeriod int, inFastKPeriod int, inFastDPeriod int, inFastDMAType MaType) ([]float64, []float64) {
 
-	//lookbackSTOCHF := (inFastKPeriod - 1) + (inFastDPeriod - 1)
-	//lookbackTotal := inTimePeriod + lookbackSTOCHF
-	//startIdx := lookbackTotal
-	//tempArraySize := (len(inReal) - startIdx) + 1 + lookbackSTOCHF
+	outFastK := make([]float64, len(inReal))
+	outFastD := make([]float64, len(inReal))
 
+	lookbackSTOCHF := (inFastKPeriod - 1) + (inFastDPeriod - 1)
+	lookbackTotal := inTimePeriod + lookbackSTOCHF
+	startIdx := lookbackTotal
+	//tempArraySize := (len(inReal) - startIdx) + 1 + lookbackSTOCHF
+	//tempRSIBuffer := make([]float64, tempArraySize)
 	//tempRSIBuffer := Rsi(startIdx-lookbackSTOCHF, inReal, inTimePeriod)
 	tempRSIBuffer := Rsi(inReal, inTimePeriod)
+	tempk, tempd := StochF(tempRSIBuffer, tempRSIBuffer, tempRSIBuffer, inFastKPeriod, inFastDPeriod, inFastDMAType)
 
-	outFastK, outFastD := StochF(tempRSIBuffer, tempRSIBuffer, tempRSIBuffer, inFastKPeriod, inFastDPeriod, inFastDMAType)
+	for i := startIdx; i < len(inReal); i++ {
+		outFastK[i] = tempk[i]
+		outFastD[i] = tempd[i]
+	}
 
 	return outFastK, outFastD
 }

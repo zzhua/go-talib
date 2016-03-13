@@ -1732,8 +1732,6 @@ func Bop(inOpen []float64, inHigh []float64, inLow []float64, inClose []float64)
 	}
 
 	return outReal
-<<<<<<< HEAD
-=======
 }
 
 // Cmo - Chande Momentum Oscillator
@@ -1814,7 +1812,6 @@ func Cmo(inReal []float64, inTimePeriod int) []float64 {
 		outIdx++
 	}
 	return outReal
->>>>>>> dev
 }
 
 // Cci - Commodity Channel Index

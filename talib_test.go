@@ -590,6 +590,13 @@ func TestStochRsi(t *testing.T) {
 	compare(t, fastd, "fastk,result = talib.STOCHRSI(testClose,14,5,2,talib.MA_Type.SMA)")
 }
 
+func TestMacdExt(t *testing.T) {
+	macd, macdsignal, macdhist := MacdExt(testClose, 12, SMA, 26, SMA, 9, SMA)
+	compare(t, macd, "result, macdsignal, macdhist = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA)")
+	compare(t, macdsignal, "macd, result, macdhist = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA)")
+	compare(t, macdhist, "macd, macdsignal, result = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA)")
+}
+
 func TestMacd(t *testing.T) {
 	macd, macdsignal, macdhist := Macd(testClose, 12, 26, 9)
 	unstable := 100
@@ -606,16 +613,8 @@ func TestMacdFix(t *testing.T) {
 	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
 }
 
-func TestMacdExt(t *testing.T) {
-	macd, macdsignal, macdhist := MacdExt(testClose, 12, SMA, 26, SMA, 9, SMA)
-	unstable := 100
-	compare(t, macd[unstable:], fmt.Sprintf("result, macdsignal, macdhist = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA); result = result[%d:]", unstable))
-	compare(t, macdsignal[unstable:], fmt.Sprintf("macd, result, macdhist = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA); result = result[%d:]", unstable))
-	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA); result = result[%d:]", unstable))
-}
-
 func TestTrix(t *testing.T) {
-	result := Trix(testClose, 30)
-	unstable := 250
-	compare(t, result[unstable:], fmt.Sprintf("result = talib.TRIX(testClose,30); result = result[%d:]", unstable))
+	result := Trix(testClose, 5)
+	unstable := 50
+	compare(t, result[unstable:], fmt.Sprintf("result = talib.TRIX(testClose,5); result = result[%d:]", unstable))
 }

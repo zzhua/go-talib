@@ -1973,11 +1973,8 @@ func Dx(inHigh []float64, inLow []float64, inClose []float64, inTimePeriod int) 
 }
 
 // Macd - Moving Average Convergence/Divergence
+// unstable period ~= 100
 func Macd(inReal []float64, inFastPeriod int, inSlowPeriod int, inSignalPeriod int) ([]float64, []float64, []float64) {
-
-	//MACD Line: (12-day EMA - 26-day EMA)
-	//Signal Line: 9-day EMA of MACD Line
-	//MACD Histogram: MACD Line - Signal Line
 
 	if inSlowPeriod < inFastPeriod {
 		inSlowPeriod, inFastPeriod = inFastPeriod, inSlowPeriod
@@ -2028,16 +2025,21 @@ func MacdExt(inReal []float64, inFastPeriod int, inFastMAType MaType, inSlowPeri
 	lookbackTotal := (inSignalPeriod - 1) + (lookbackLargest - 1)
 
 	outMACD := make([]float64, len(inReal))
+	outMACDSignal := make([]float64, len(inReal))
+	outMACDHist := make([]float64, len(inReal))
+
 	slowMABuffer := MA(inReal, inSlowPeriod, inSlowMAType)
 	fastMABuffer := MA(inReal, inFastPeriod, inFastMAType)
-	for i := lookbackTotal; i < len(slowMABuffer); i++ {
-		outMACD[i] = fastMABuffer[i] - slowMABuffer[i]
+	tempBuffer1 := make([]float64, len(inReal))
+
+	for i := 0; i < len(slowMABuffer); i++ {
+		tempBuffer1[i] = fastMABuffer[i] - slowMABuffer[i]
 	}
+	tempBuffer2 := MA(tempBuffer1, inSignalPeriod, inSignalMAType)
 
-	outMACDSignal := MA(outMACD, inSignalPeriod, inSignalMAType)
-
-	outMACDHist := make([]float64, len(inReal))
 	for i := lookbackTotal; i < len(outMACDHist); i++ {
+		outMACD[i] = tempBuffer1[i]
+		outMACDSignal[i] = tempBuffer2[i]
 		outMACDHist[i] = outMACD[i] - outMACDSignal[i]
 	}
 
@@ -2045,6 +2047,7 @@ func MacdExt(inReal []float64, inFastPeriod int, inFastMAType MaType, inSlowPeri
 }
 
 // MacdFix - MACD Fix 12/26
+// unstable period ~= 100
 func MacdFix(inReal []float64, inSignalPeriod int) ([]float64, []float64, []float64) {
 	return Macd(inReal, 0, 0, inSignalPeriod)
 }
@@ -3042,9 +3045,6 @@ func StochRsi(inReal []float64, inTimePeriod int, inFastKPeriod int, inFastDPeri
 	lookbackSTOCHF := (inFastKPeriod - 1) + (inFastDPeriod - 1)
 	lookbackTotal := inTimePeriod + lookbackSTOCHF
 	startIdx := lookbackTotal
-	//tempArraySize := (len(inReal) - startIdx) + 1 + lookbackSTOCHF
-	//tempRSIBuffer := make([]float64, tempArraySize)
-	//tempRSIBuffer := Rsi(startIdx-lookbackSTOCHF, inReal, inTimePeriod)
 	tempRSIBuffer := Rsi(inReal, inTimePeriod)
 	tempk, tempd := StochF(tempRSIBuffer, tempRSIBuffer, tempRSIBuffer, inFastKPeriod, inFastDPeriod, inFastDMAType)
 
@@ -3057,7 +3057,7 @@ func StochRsi(inReal []float64, inTimePeriod int, inFastKPeriod int, inFastDPeri
 }
 
 //Trix - 1-day Rate-Of-Change (ROC) of a Triple Smooth EMA
-// lookback (unstable period) = 250
+// unstable period ~= 10*period
 func Trix(inReal []float64, inTimePeriod int) []float64 {
 
 	outReal := Ema(inReal, inTimePeriod)

@@ -71,6 +71,14 @@ print(' '.join([str(p) for p in result]).replace('nan','0.0'))`,
 	equals(t, len(goResult), len(pyResult))
 
 	for i := 0; i < len(goResult); i++ {
+
+		if (goResult[i] < -0.00000000000001) || (goResult[i] < 0.00000000000001) {
+			goResult[i] = 0.0
+		}
+		if (pyResult[i] < -0.00000000000001) || (pyResult[i] < 0.00000000000001) {
+			pyResult[i] = 0.0
+		}
+
 		s1 := fmt.Sprintf("%.6f", goResult[i])
 		s2 := fmt.Sprintf("%.6f", pyResult[i])
 		//equals(t, s1, s2)
@@ -103,6 +111,12 @@ func TestSma(t *testing.T) {
 func TestEma(t *testing.T) {
 	result := Ema(testClose, 5)
 	compare(t, result, "result = talib.EMA(testClose,5)")
+	result = Ema(testClose, 20)
+	compare(t, result, "result = talib.EMA(testClose,20)")
+	result = Ema(testClose, 50)
+	compare(t, result, "result = talib.EMA(testClose,50)")
+	result = Ema(testClose, 100)
+	compare(t, result, "result = talib.EMA(testClose,100)")
 }
 
 func TestRsi(t *testing.T) {
@@ -528,4 +542,82 @@ func TestAroonOsc(t *testing.T) {
 func TestBop(t *testing.T) {
 	result := Bop(testOpen, testHigh, testLow, testClose)
 	compare(t, result, "result = talib.BOP(testOpen,testHigh,testLow,testClose)")
+}
+
+func TestCmo(t *testing.T) {
+	result := Cmo(testClose, 14)
+	compare(t, result, "result = talib.CMO(testClose,14)")
+}
+
+func TestDx(t *testing.T) {
+	result := Dx(testHigh, testLow, testClose, 14)
+	compare(t, result, "result = talib.DX(testHigh,testLow,testClose,14)")
+}
+
+func TestMinusDI(t *testing.T) {
+	result := MinusDI(testHigh, testLow, testClose, 14)
+	compare(t, result, "result = talib.MINUS_DI(testHigh,testLow,testClose,14)")
+}
+
+func TestPlusDI(t *testing.T) {
+	result := PlusDI(testHigh, testLow, testClose, 14)
+	compare(t, result, "result = talib.PLUS_DI(testHigh,testLow,testClose,14)")
+}
+
+func TestMfi(t *testing.T) {
+	result := Mfi(testHigh, testLow, testClose, testVolume, 14)
+	compare(t, result, "result = talib.MFI(testHigh,testLow,testClose,testVolume,14)")
+}
+
+func TestUltOsc(t *testing.T) {
+	result := UltOsc(testHigh, testLow, testClose, 7, 14, 28)
+	compare(t, result, "result = talib.ULTOSC(testHigh,testLow,testClose,7,14,28)")
+}
+
+func TestStoch(t *testing.T) {
+	slowk, slowd := Stoch(testHigh, testLow, testClose, 5, 3, SMA, 3, SMA)
+	compare(t, slowk, "result,slowd = talib.STOCH(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA,3,talib.MA_Type.SMA)")
+	compare(t, slowd, "slowk,result = talib.STOCH(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA,3,talib.MA_Type.SMA)")
+}
+
+func TestStochF(t *testing.T) {
+	fastk, fastd := StochF(testHigh, testLow, testClose, 5, 3, SMA)
+	compare(t, fastk, "result,fastd = talib.STOCHF(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA)")
+	compare(t, fastd, "fastk,result = talib.STOCHF(testHigh,testLow,testClose,5,3,talib.MA_Type.SMA)")
+}
+
+func TestStochRsi(t *testing.T) {
+	fastk, fastd := StochRsi(testClose, 14, 5, 2, SMA)
+	compare(t, fastk, "result,fastd = talib.STOCHRSI(testClose,14,5,2,talib.MA_Type.SMA)")
+	compare(t, fastd, "fastk,result = talib.STOCHRSI(testClose,14,5,2,talib.MA_Type.SMA)")
+}
+
+func TestMacd(t *testing.T) {
+	macd, macdsignal, macdhist := Macd(testClose, 12, 26, 9)
+	unstable := 100
+	compare(t, macd[unstable:], fmt.Sprintf("result, macdsignal, macdhist = talib.MACD(testClose,12,26,9); result = result[%d:]", unstable))
+	compare(t, macdsignal[unstable:], fmt.Sprintf("macd, result, macdhist = talib.MACD(testClose,12,26,9); result = result[%d:]", unstable))
+	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACD(testClose,12,26,9); result = result[%d:]", unstable))
+}
+
+func TestMacdFix(t *testing.T) {
+	macd, macdsignal, macdhist := MacdFix(testClose, 9)
+	unstable := 100
+	compare(t, macd[unstable:], fmt.Sprintf("result, macdsignal, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
+	compare(t, macdsignal[unstable:], fmt.Sprintf("macd, result, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
+	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
+}
+
+func TestMacdExt(t *testing.T) {
+	macd, macdsignal, macdhist := MacdExt(testClose, 12, SMA, 26, SMA, 9, SMA)
+	unstable := 100
+	compare(t, macd[unstable:], fmt.Sprintf("result, macdsignal, macdhist = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA); result = result[%d:]", unstable))
+	compare(t, macdsignal[unstable:], fmt.Sprintf("macd, result, macdhist = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA); result = result[%d:]", unstable))
+	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA); result = result[%d:]", unstable))
+}
+
+func TestTrix(t *testing.T) {
+	result := Trix(testClose, 30)
+	unstable := 250
+	compare(t, result[unstable:], fmt.Sprintf("result = talib.TRIX(testClose,30); result = result[%d:]", unstable))
 }

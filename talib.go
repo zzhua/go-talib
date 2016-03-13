@@ -1994,6 +1994,7 @@ func Macd(inReal []float64, inFastPeriod int, inSlowPeriod int, inSignalPeriod i
 	}
 
 	lookbackTotal := (inSignalPeriod - 1) + (inSlowPeriod - 1)
+	//lookbackTotal := (inSignalPeriod * 2) + (inSlowPeriod * 2)
 
 	outMACD := make([]float64, len(inReal))
 	fastEMABuffer := ema(inReal, inFastPeriod, k2)
@@ -3057,13 +3058,17 @@ func StochRsi(inReal []float64, inTimePeriod int, inFastKPeriod int, inFastDPeri
 }
 
 //Trix - 1-day Rate-Of-Change (ROC) of a Triple Smooth EMA
-// unstable period ~= 10*period
 func Trix(inReal []float64, inTimePeriod int) []float64 {
 
-	outReal := Ema(inReal, inTimePeriod)
-	outReal = Ema(outReal, inTimePeriod)
-	outReal = Ema(outReal, inTimePeriod)
-	outReal = Roc(outReal, 1)
+	tmpReal := Ema(inReal, inTimePeriod)
+	tmpReal = Ema(tmpReal[inTimePeriod-1:], inTimePeriod)
+	tmpReal = Ema(tmpReal[inTimePeriod-1:], inTimePeriod)
+	tmpReal = Roc(tmpReal, 1)
+
+	outReal := make([]float64, len(inReal))
+	for i, j := inTimePeriod, ((inTimePeriod-1)*3)+1; j < len(outReal); i, j = i+1, j+1 {
+		outReal[j] = tmpReal[i]
+	}
 
 	return outReal
 }

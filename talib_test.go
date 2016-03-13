@@ -597,6 +597,13 @@ func TestMacdExt(t *testing.T) {
 	compare(t, macdhist, "macd, macdsignal, result = talib.MACDEXT(testClose,12,talib.MA_Type.SMA,26,talib.MA_Type.SMA,9,talib.MA_Type.SMA)")
 }
 
+func TestTrix(t *testing.T) {
+	result := Trix(testClose, 5)
+	compare(t, result, "result = talib.TRIX(testClose,5)")
+	result = Trix(testClose, 30)
+	compare(t, result, "result = talib.TRIX(testClose,30)")
+}
+
 func TestMacd(t *testing.T) {
 	macd, macdsignal, macdhist := Macd(testClose, 12, 26, 9)
 	unstable := 100
@@ -608,13 +615,8 @@ func TestMacd(t *testing.T) {
 func TestMacdFix(t *testing.T) {
 	macd, macdsignal, macdhist := MacdFix(testClose, 9)
 	unstable := 100
+	fmt.Println(macd)
 	compare(t, macd[unstable:], fmt.Sprintf("result, macdsignal, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
 	compare(t, macdsignal[unstable:], fmt.Sprintf("macd, result, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
 	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
-}
-
-func TestTrix(t *testing.T) {
-	result := Trix(testClose, 5)
-	unstable := 50
-	compare(t, result[unstable:], fmt.Sprintf("result = talib.TRIX(testClose,5); result = result[%d:]", unstable))
 }

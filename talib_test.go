@@ -5,6 +5,7 @@ package talib
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -42,6 +43,13 @@ func a2s(a []float64) string { // go float64 array to python list initializer st
 	return strings.Replace(fmt.Sprintf("%f", a), " ", ",", -1)
 }
 
+func round(input float64) float64 {
+	if input < 0 {
+		return math.Ceil(input - 0.5)
+	}
+	return math.Floor(input + 0.5)
+}
+
 func compare(t *testing.T, goResult []float64, taCall string) {
 	pyprog := fmt.Sprintf(`import talib,numpy
 testOpen = numpy.array(%s)
@@ -77,8 +85,18 @@ print(' '.join([str(p) for p in result]).replace('nan','0.0'))`,
 			pyResult[i] = 0.0
 		}
 
-		s1 := fmt.Sprintf("%.6f", goResult[i])
-		s2 := fmt.Sprintf("%.6f", pyResult[i])
+		var s1, s2 string
+		if (goResult[i] > -1000000) && (goResult[i] < 1000000) {
+			s1 = fmt.Sprintf("%.6f", goResult[i])
+		} else {
+			s1 = fmt.Sprintf("%.1f", round(goResult[i])) // reduce precision for very large numbers
+		}
+
+		if (pyResult[i] > -1000000) && (pyResult[i] < 1000000) {
+			s2 = fmt.Sprintf("%.6f", pyResult[i])
+		} else {
+			s2 = fmt.Sprintf("%.1f", round(pyResult[i])) // reduce precision for very large numbers
+		}
 		//equals(t, s1, s2)
 		if s1[:len(s1)-2] != s2[:len(s2)-2] {
 			_, file, line, _ := runtime.Caller(1)
@@ -166,18 +184,6 @@ func TestRocp(t *testing.T) {
 	result := Rocp(testClose, 10)
 	compare(t, result, "result = talib.ROCP(testClose,10)")
 }
-
-//TODO: Figure out precision issue
-//func TestAd(t *testing.T) {
-//	result := Ad(testHigh, testLow, testClose, testVolume)
-//	compare(t, result, "result = talib.AD(testHigh,testLow,testClose,testVolume)")
-//}
-
-//TODO: Figure out precision issue
-//func TestAdOsc(t *testing.T) {
-//	result := AdOsc(testHigh, testLow, testClose, testVolume, 3, 10)
-//	compare(t, result, "result = talib.ADOSC(testHigh,testLow,testClose,testVolume,3,10)")
-//}
 
 func TestObv(t *testing.T) {
 	result := Obv(testClose, testVolume)
@@ -433,8 +439,8 @@ func TestWma(t *testing.T) {
 	compare(t, result, "result = talib.WMA(testClose,10)")
 }
 
-func TestMA(t *testing.T) {
-	result := MA(testClose, 10, DEMA)
+func TestMa(t *testing.T) {
+	result := Ma(testClose, 10, DEMA)
 	compare(t, result, "result = talib.MA(testClose,10,talib.MA_Type.DEMA)")
 }
 
@@ -618,4 +624,14 @@ func TestMacdFix(t *testing.T) {
 	compare(t, macd[unstable:], fmt.Sprintf("result, macdsignal, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
 	compare(t, macdsignal[unstable:], fmt.Sprintf("macd, result, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
 	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
+}
+
+func TestAd(t *testing.T) {
+	result := Ad(testHigh, testLow, testClose, testVolume)
+	compare(t, result, "result = talib.AD(testHigh,testLow,testClose,testVolume)")
+}
+
+func TestAdOsc(t *testing.T) {
+	result := AdOsc(testHigh, testLow, testClose, testVolume, 3, 10)
+	compare(t, result, "result = talib.ADOSC(testHigh,testLow,testClose,testVolume,3,10)")
 }

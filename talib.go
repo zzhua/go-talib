@@ -105,21 +105,23 @@ func ema(inReal []float64, inTimePeriod int, k1 float64) []float64 {
 	lookbackTotal := inTimePeriod - 1
 	startIdx := lookbackTotal
 	today := startIdx - lookbackTotal
+	i := inTimePeriod
 	tempReal := 0.0
-	for i := inTimePeriod; i > 0; i, today = i-1, today+1 {
+	for i > 0 {
 		tempReal += inReal[today]
+		today++
+		i--
 	}
+
 	prevMA := tempReal / float64(inTimePeriod)
 
 	for today <= startIdx {
 		prevMA = ((inReal[today] - prevMA) * k1) + prevMA
 		today++
 	}
-
 	outReal[startIdx] = prevMA
 	outIdx := startIdx + 1
-
-	for today < len(outReal) {
+	for today < len(inReal) {
 		prevMA = ((inReal[today] - prevMA) * k1) + prevMA
 		outReal[outIdx] = prevMA
 		today++
@@ -132,7 +134,7 @@ func ema(inReal []float64, inTimePeriod int, k1 float64) []float64 {
 // Ema - Exponential Moving Average
 func Ema(inReal []float64, inTimePeriod int) []float64 {
 
-	k := (2.0 / (float64(inTimePeriod) + 1))
+	k := 2.0 / float64(inTimePeriod+1)
 	outReal := ema(inReal, inTimePeriod, k)
 	return outReal
 }
@@ -1980,30 +1982,35 @@ func Macd(inReal []float64, inFastPeriod int, inSlowPeriod int, inSignalPeriod i
 		inSlowPeriod, inFastPeriod = inFastPeriod, inSlowPeriod
 	}
 
-	k1 := 0.075
+	k1 := 0.0
+	k2 := 0.0
 	if inSlowPeriod != 0 {
-		k1 = (2.0 / float64(inSlowPeriod+1))
+		k1 = 2.0 / float64(inSlowPeriod+1)
 	} else {
 		inSlowPeriod = 26
+		k1 = 0.075
 	}
-	k2 := 0.15
 	if inFastPeriod != 0 {
-		k2 = (2.0 / float64(inFastPeriod+1))
+		k2 = 2.0 / float64(inFastPeriod+1)
 	} else {
 		inFastPeriod = 12
+		k2 = 0.15
 	}
 
-	lookbackTotal := (inSignalPeriod - 1) + (inSlowPeriod - 1)
-	//lookbackTotal := (inSignalPeriod * 2) + (inSlowPeriod * 2)
+	lookbackSignal := inSignalPeriod - 1
+	lookbackTotal := lookbackSignal
+	lookbackTotal += (inSlowPeriod - 1)
 
-	outMACD := make([]float64, len(inReal))
 	fastEMABuffer := ema(inReal, inFastPeriod, k2)
 	slowEMABuffer := ema(inReal, inSlowPeriod, k1)
-
-	for i := lookbackTotal; i < len(slowEMABuffer); i++ {
-		outMACD[i] = fastEMABuffer[i] - slowEMABuffer[i]
+	for i := 0; i < len(fastEMABuffer); i++ {
+		fastEMABuffer[i] = fastEMABuffer[i] - slowEMABuffer[i]
 	}
 
+	outMACD := make([]float64, len(inReal))
+	for i := lookbackTotal - 1; i < len(fastEMABuffer); i++ {
+		outMACD[i] = fastEMABuffer[i]
+	}
 	outMACDSignal := ema(outMACD, inSignalPeriod, (2.0 / float64(inSignalPeriod+1)))
 
 	outMACDHist := make([]float64, len(inReal))
@@ -2015,6 +2022,7 @@ func Macd(inReal []float64, inFastPeriod int, inSlowPeriod int, inSignalPeriod i
 }
 
 // MacdExt - MACD with controllable MA type
+// unstable period ~= 100
 func MacdExt(inReal []float64, inFastPeriod int, inFastMAType MaType, inSlowPeriod int, inSlowMAType MaType, inSignalPeriod int, inSignalMAType MaType) ([]float64, []float64, []float64) {
 
 	lookbackLargest := 0

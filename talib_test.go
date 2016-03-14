@@ -615,7 +615,6 @@ func TestMacd(t *testing.T) {
 func TestMacdFix(t *testing.T) {
 	macd, macdsignal, macdhist := MacdFix(testClose, 9)
 	unstable := 100
-	fmt.Println(macd)
 	compare(t, macd[unstable:], fmt.Sprintf("result, macdsignal, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
 	compare(t, macdsignal[unstable:], fmt.Sprintf("macd, result, macdhist = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))
 	compare(t, macdhist[unstable:], fmt.Sprintf("macd, macdsignal, result = talib.MACDFIX(testClose,9); result = result[%d:]", unstable))

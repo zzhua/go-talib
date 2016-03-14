@@ -38,7 +38,7 @@ const (
 func BBands(inReal []float64, inTimePeriod int, inNbDevUp float64, inNbDevDn float64, inMAType MaType) ([]float64, []float64, []float64) {
 
 	outRealUpperBand := make([]float64, len(inReal))
-	outRealMiddleBand := MA(inReal, inTimePeriod, inMAType)
+	outRealMiddleBand := Ma(inReal, inTimePeriod, inMAType)
 	outRealLowerBand := make([]float64, len(inReal))
 
 	tempBuffer2 := StdDev(inReal, inTimePeriod, 1.0)
@@ -107,21 +107,23 @@ func ema(inReal []float64, inTimePeriod int, k1 float64) []float64 {
 	lookbackTotal := inTimePeriod - 1
 	startIdx := lookbackTotal
 	today := startIdx - lookbackTotal
+	i := inTimePeriod
 	tempReal := 0.0
-	for i := inTimePeriod; i > 0; i, today = i-1, today+1 {
+	for i > 0 {
 		tempReal += inReal[today]
+		today++
+		i--
 	}
+
 	prevMA := tempReal / float64(inTimePeriod)
 
 	for today <= startIdx {
 		prevMA = ((inReal[today] - prevMA) * k1) + prevMA
 		today++
 	}
-
 	outReal[startIdx] = prevMA
 	outIdx := startIdx + 1
-
-	for today < len(outReal) {
+	for today < len(inReal) {
 		prevMA = ((inReal[today] - prevMA) * k1) + prevMA
 		outReal[outIdx] = prevMA
 		today++
@@ -134,7 +136,7 @@ func ema(inReal []float64, inTimePeriod int, k1 float64) []float64 {
 // Ema - Exponential Moving Average
 func Ema(inReal []float64, inTimePeriod int) []float64 {
 
-	k := (2.0 / (float64(inTimePeriod) + 1))
+	k := 2.0 / float64(inTimePeriod+1)
 	outReal := ema(inReal, inTimePeriod, k)
 	return outReal
 }
@@ -455,8 +457,8 @@ func Kama(inReal []float64, inTimePeriod int) []float64 {
 	return outReal
 }
 
-// MA - Moving average
-func MA(inReal []float64, inTimePeriod int, inMAType MaType) []float64 {
+// Ma - Moving average
+func Ma(inReal []float64, inTimePeriod int, inMAType MaType) []float64 {
 
 	outReal := make([]float64, len(inReal))
 
@@ -785,7 +787,7 @@ func MaVp(inReal []float64, inPeriods []float64, inMinPeriod int, inMaxPeriod in
 	for i := startIdx; i < outputSize; i++ {
 		curPeriod := int(localPeriodArray[i])
 		if curPeriod != 0 {
-			localOutputArray := MA(inReal, curPeriod, inMAType)
+			localOutputArray := Ma(inReal, curPeriod, inMAType)
 			outReal[i] = localOutputArray[i]
 			for j := i + 1; j < outputSize; j++ {
 				if localPeriodArray[j] == float64(curPeriod) {
@@ -1585,8 +1587,8 @@ func Apo(inReal []float64, inFastPeriod int, inSlowPeriod int, inMAType MaType) 
 	if inSlowPeriod < inFastPeriod {
 		inSlowPeriod, inFastPeriod = inFastPeriod, inSlowPeriod
 	}
-	tempBuffer := MA(inReal, inFastPeriod, inMAType)
-	outReal := MA(inReal, inSlowPeriod, inMAType)
+	tempBuffer := Ma(inReal, inFastPeriod, inMAType)
+	outReal := Ma(inReal, inSlowPeriod, inMAType)
 	for i := inSlowPeriod - 1; i < len(inReal); i++ {
 		outReal[i] = tempBuffer[i] - outReal[i]
 	}
@@ -1975,39 +1977,42 @@ func Dx(inHigh []float64, inLow []float64, inClose []float64, inTimePeriod int) 
 }
 
 // Macd - Moving Average Convergence/Divergence
+// unstable period ~= 100
 func Macd(inReal []float64, inFastPeriod int, inSlowPeriod int, inSignalPeriod int) ([]float64, []float64, []float64) {
-
-	//MACD Line: (12-day EMA - 26-day EMA)
-	//Signal Line: 9-day EMA of MACD Line
-	//MACD Histogram: MACD Line - Signal Line
 
 	if inSlowPeriod < inFastPeriod {
 		inSlowPeriod, inFastPeriod = inFastPeriod, inSlowPeriod
 	}
 
-	k1 := 0.075
+	k1 := 0.0
+	k2 := 0.0
 	if inSlowPeriod != 0 {
-		k1 = (2.0 / float64(inSlowPeriod+1))
+		k1 = 2.0 / float64(inSlowPeriod+1)
 	} else {
 		inSlowPeriod = 26
+		k1 = 0.075
 	}
-	k2 := 0.15
 	if inFastPeriod != 0 {
-		k2 = (2.0 / float64(inFastPeriod+1))
+		k2 = 2.0 / float64(inFastPeriod+1)
 	} else {
 		inFastPeriod = 12
+		k2 = 0.15
 	}
 
-	lookbackTotal := (inSignalPeriod - 1) + (inSlowPeriod - 1)
+	lookbackSignal := inSignalPeriod - 1
+	lookbackTotal := lookbackSignal
+	lookbackTotal += (inSlowPeriod - 1)
 
-	outMACD := make([]float64, len(inReal))
 	fastEMABuffer := ema(inReal, inFastPeriod, k2)
 	slowEMABuffer := ema(inReal, inSlowPeriod, k1)
-
-	for i := lookbackTotal; i < len(slowEMABuffer); i++ {
-		outMACD[i] = fastEMABuffer[i] - slowEMABuffer[i]
+	for i := 0; i < len(fastEMABuffer); i++ {
+		fastEMABuffer[i] = fastEMABuffer[i] - slowEMABuffer[i]
 	}
 
+	outMACD := make([]float64, len(inReal))
+	for i := lookbackTotal - 1; i < len(fastEMABuffer); i++ {
+		outMACD[i] = fastEMABuffer[i]
+	}
 	outMACDSignal := ema(outMACD, inSignalPeriod, (2.0 / float64(inSignalPeriod+1)))
 
 	outMACDHist := make([]float64, len(inReal))
@@ -2019,6 +2024,7 @@ func Macd(inReal []float64, inFastPeriod int, inSlowPeriod int, inSignalPeriod i
 }
 
 // MacdExt - MACD with controllable MA type
+// unstable period ~= 100
 func MacdExt(inReal []float64, inFastPeriod int, inFastMAType MaType, inSlowPeriod int, inSlowMAType MaType, inSignalPeriod int, inSignalMAType MaType) ([]float64, []float64, []float64) {
 
 	lookbackLargest := 0
@@ -2030,16 +2036,21 @@ func MacdExt(inReal []float64, inFastPeriod int, inFastMAType MaType, inSlowPeri
 	lookbackTotal := (inSignalPeriod - 1) + (lookbackLargest - 1)
 
 	outMACD := make([]float64, len(inReal))
-	slowMABuffer := MA(inReal, inSlowPeriod, inSlowMAType)
-	fastMABuffer := MA(inReal, inFastPeriod, inFastMAType)
-	for i := lookbackTotal; i < len(slowMABuffer); i++ {
-		outMACD[i] = fastMABuffer[i] - slowMABuffer[i]
-	}
-
-	outMACDSignal := MA(outMACD, inSignalPeriod, inSignalMAType)
-
+	outMACDSignal := make([]float64, len(inReal))
 	outMACDHist := make([]float64, len(inReal))
+
+	slowMABuffer := Ma(inReal, inSlowPeriod, inSlowMAType)
+	fastMABuffer := Ma(inReal, inFastPeriod, inFastMAType)
+	tempBuffer1 := make([]float64, len(inReal))
+
+	for i := 0; i < len(slowMABuffer); i++ {
+		tempBuffer1[i] = fastMABuffer[i] - slowMABuffer[i]
+	}
+	tempBuffer2 := Ma(tempBuffer1, inSignalPeriod, inSignalMAType)
+
 	for i := lookbackTotal; i < len(outMACDHist); i++ {
+		outMACD[i] = tempBuffer1[i]
+		outMACDSignal[i] = tempBuffer2[i]
 		outMACDHist[i] = outMACD[i] - outMACDSignal[i]
 	}
 
@@ -2047,6 +2058,7 @@ func MacdExt(inReal []float64, inFastPeriod int, inFastMAType MaType, inSlowPeri
 }
 
 // MacdFix - MACD Fix 12/26
+// unstable period ~= 100
 func MacdFix(inReal []float64, inSignalPeriod int) ([]float64, []float64, []float64) {
 	return Macd(inReal, 0, 0, inSignalPeriod)
 }
@@ -2675,8 +2687,8 @@ func Ppo(inReal []float64, inFastPeriod int, inSlowPeriod int, inMAType MaType) 
 	if inSlowPeriod < inFastPeriod {
 		inSlowPeriod, inFastPeriod = inFastPeriod, inSlowPeriod
 	}
-	tempBuffer := MA(inReal, inFastPeriod, inMAType)
-	outReal := MA(inReal, inSlowPeriod, inMAType)
+	tempBuffer := Ma(inReal, inFastPeriod, inMAType)
+	outReal := Ma(inReal, inSlowPeriod, inMAType)
 
 	for i := inSlowPeriod - 1; i < len(inReal); i++ {
 		tempReal := outReal[i]
@@ -2947,8 +2959,8 @@ func Stoch(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod i
 		today++
 	}
 
-	tempBuffer1 := MA(tempBuffer, inSlowKPeriod, inSlowKMAType)
-	tempBuffer2 := MA(tempBuffer1, inSlowDPeriod, inSlowDMAType)
+	tempBuffer1 := Ma(tempBuffer, inSlowKPeriod, inSlowKMAType)
+	tempBuffer2 := Ma(tempBuffer1, inSlowDPeriod, inSlowDMAType)
 	for i, j := lookbackK, lookbackTotal; j < len(inClose); i, j = i+1, j+1 {
 		outSlowK[j] = tempBuffer1[i]
 		outSlowD[j] = tempBuffer2[i]
@@ -3026,7 +3038,7 @@ func StochF(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod 
 		today++
 	}
 
-	tempBuffer1 := MA(tempBuffer, inFastDPeriod, inFastDMAType)
+	tempBuffer1 := Ma(tempBuffer, inFastDPeriod, inFastDMAType)
 	for i, j := lookbackFastD, lookbackTotal; j < len(inClose); i, j = i+1, j+1 {
 		outFastK[j] = tempBuffer[i]
 		outFastD[j] = tempBuffer1[i]
@@ -3044,9 +3056,6 @@ func StochRsi(inReal []float64, inTimePeriod int, inFastKPeriod int, inFastDPeri
 	lookbackSTOCHF := (inFastKPeriod - 1) + (inFastDPeriod - 1)
 	lookbackTotal := inTimePeriod + lookbackSTOCHF
 	startIdx := lookbackTotal
-	//tempArraySize := (len(inReal) - startIdx) + 1 + lookbackSTOCHF
-	//tempRSIBuffer := make([]float64, tempArraySize)
-	//tempRSIBuffer := Rsi(startIdx-lookbackSTOCHF, inReal, inTimePeriod)
 	tempRSIBuffer := Rsi(inReal, inTimePeriod)
 	tempk, tempd := StochF(tempRSIBuffer, tempRSIBuffer, tempRSIBuffer, inFastKPeriod, inFastDPeriod, inFastDMAType)
 
@@ -3059,13 +3068,17 @@ func StochRsi(inReal []float64, inTimePeriod int, inFastKPeriod int, inFastDPeri
 }
 
 //Trix - 1-day Rate-Of-Change (ROC) of a Triple Smooth EMA
-// lookback (unstable period) = 250
 func Trix(inReal []float64, inTimePeriod int) []float64 {
 
-	outReal := Ema(inReal, inTimePeriod)
-	outReal = Ema(outReal, inTimePeriod)
-	outReal = Ema(outReal, inTimePeriod)
-	outReal = Roc(outReal, 1)
+	tmpReal := Ema(inReal, inTimePeriod)
+	tmpReal = Ema(tmpReal[inTimePeriod-1:], inTimePeriod)
+	tmpReal = Ema(tmpReal[inTimePeriod-1:], inTimePeriod)
+	tmpReal = Roc(tmpReal, 1)
+
+	outReal := make([]float64, len(inReal))
+	for i, j := inTimePeriod, ((inTimePeriod-1)*3)+1; j < len(outReal); i, j = i+1, j+1 {
+		outReal[j] = tmpReal[i]
+	}
 
 	return outReal
 }

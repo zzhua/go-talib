@@ -36,7 +36,6 @@ func main() {
 	rsi2 := talib.Rsi(spy.Close, 2)
 	fmt.Println(rsi2)
 }
-}
 ```
 
 ## License

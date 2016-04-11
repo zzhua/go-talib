@@ -26,19 +26,16 @@ and use `talib` as the package name inside the code.
 package main
 
 import (
-  "fmt"
-  "github.com/markcheno/go-talib"
+	"fmt"
+	"github.com/markcheno/go-quote"
+	"github.com/markcheno/go-talib"
 )
 
 func main() {
-
-  var data = []float64{201.28, 197.64, 195.78, 198.22, 201.74, 200.12, 198.55, 197.99, 196.80, 195.00,
-                       197.55, 197.97, 198.97, 201.93, 200.83, 201.30, 198.64, 196.09, 197.91, 195.42,
-                       197.84, 200.70, 199.93, 201.95, 201.39, 200.49, 202.63, 202.75, 204.70, 205.54}
-
-  sma := talib.Sma(data, 5)
-  
-  fmt.Println(sma)
+	spy, _ := quote.NewQuoteFromYahoo("spy", "2016-01-01", "2016-04-01", quote.Daily, true)
+	rsi2 := talib.Rsi(spy.Close, 2)
+	fmt.Println(rsi2)
+}
 }
 ```
 

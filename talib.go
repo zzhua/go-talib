@@ -6,9 +6,7 @@ Licensed under terms of MIT license (see LICENSE)
 // Package talib is a pure Go port of TA-Lib (http://ta-lib.org) Technical Analysis Library
 package talib
 
-import (
-	"math"
-)
+import "math"
 
 // MaType - Moving average type
 type MaType int
@@ -2961,7 +2959,8 @@ func Stoch(inHigh []float64, inLow []float64, inClose []float64, inFastKPeriod i
 
 	tempBuffer1 := Ma(tempBuffer, inSlowKPeriod, inSlowKMAType)
 	tempBuffer2 := Ma(tempBuffer1, inSlowDPeriod, inSlowDMAType)
-	for i, j := lookbackK, lookbackTotal; j < len(inClose); i, j = i+1, j+1 {
+	//for i, j := lookbackK, lookbackTotal; j < len(inClose); i, j = i+1, j+1 {
+	for i, j := lookbackDSlow+lookbackKSlow, lookbackTotal; j < len(inClose); i, j = i+1, j+1 {
 		outSlowK[j] = tempBuffer1[i]
 		outSlowD[j] = tempBuffer2[i]
 	}

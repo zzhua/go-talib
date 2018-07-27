@@ -5114,7 +5114,7 @@ func LinearReg(inReal []float64, inTimePeriod int) []float64 {
 	sumX := inTimePeriodF * (inTimePeriodF - 1) * 0.5
 	sumXSqr := inTimePeriodF * (inTimePeriodF - 1) * (2*inTimePeriodF - 1) / 6
 	divisor := sumX*sumX - inTimePeriodF*sumXSqr
-	//initialize values of sumY and sumXY over first (inTimePeriod) input values 
+	//initialize values of sumY and sumXY over first (inTimePeriod) input values
 	sumXY := 0.0
 	sumY := 0.0
 	i := inTimePeriod
@@ -5126,7 +5126,7 @@ func LinearReg(inReal []float64, inTimePeriod int) []float64 {
 	}
 	for today < len(inReal) {
 		//sumX and sumXY are already available for first output value
-		if today > startIdx - 1 {
+		if today > startIdx-1 {
 			tempValue2 := inReal[today-inTimePeriod]
 			sumXY += sumY - inTimePeriodF*tempValue2
 			sumY += inReal[today] - tempValue2
@@ -5153,7 +5153,7 @@ func LinearRegAngle(inReal []float64, inTimePeriod int) []float64 {
 	sumX := inTimePeriodF * (inTimePeriodF - 1) * 0.5
 	sumXSqr := inTimePeriodF * (inTimePeriodF - 1) * (2*inTimePeriodF - 1) / 6
 	divisor := sumX*sumX - inTimePeriodF*sumXSqr
-	//initialize values of sumY and sumXY over first (inTimePeriod) input values 
+	//initialize values of sumY and sumXY over first (inTimePeriod) input values
 	sumXY := 0.0
 	sumY := 0.0
 	i := inTimePeriod
@@ -5165,7 +5165,7 @@ func LinearRegAngle(inReal []float64, inTimePeriod int) []float64 {
 	}
 	for today < len(inReal) {
 		//sumX and sumXY are already available for first output value
-		if today > startIdx - 1 {
+		if today > startIdx-1 {
 			tempValue2 := inReal[today-inTimePeriod]
 			sumXY += sumY - inTimePeriodF*tempValue2
 			sumY += inReal[today] - tempValue2
@@ -5191,7 +5191,7 @@ func LinearRegIntercept(inReal []float64, inTimePeriod int) []float64 {
 	sumX := inTimePeriodF * (inTimePeriodF - 1) * 0.5
 	sumXSqr := inTimePeriodF * (inTimePeriodF - 1) * (2*inTimePeriodF - 1) / 6
 	divisor := sumX*sumX - inTimePeriodF*sumXSqr
-	//initialize values of sumY and sumXY over first (inTimePeriod) input values 
+	//initialize values of sumY and sumXY over first (inTimePeriod) input values
 	sumXY := 0.0
 	sumY := 0.0
 	i := inTimePeriod
@@ -5203,7 +5203,7 @@ func LinearRegIntercept(inReal []float64, inTimePeriod int) []float64 {
 	}
 	for today < len(inReal) {
 		//sumX and sumXY are already available for first output value
-		if today > startIdx - 1 {
+		if today > startIdx-1 {
 			tempValue2 := inReal[today-inTimePeriod]
 			sumXY += sumY - inTimePeriodF*tempValue2
 			sumY += inReal[today] - tempValue2
@@ -5229,7 +5229,7 @@ func LinearRegSlope(inReal []float64, inTimePeriod int) []float64 {
 	sumX := inTimePeriodF * (inTimePeriodF - 1) * 0.5
 	sumXSqr := inTimePeriodF * (inTimePeriodF - 1) * (2*inTimePeriodF - 1) / 6
 	divisor := sumX*sumX - inTimePeriodF*sumXSqr
-	//initialize values of sumY and sumXY over first (inTimePeriod) input values 
+	//initialize values of sumY and sumXY over first (inTimePeriod) input values
 	sumXY := 0.0
 	sumY := 0.0
 	i := inTimePeriod
@@ -5241,7 +5241,7 @@ func LinearRegSlope(inReal []float64, inTimePeriod int) []float64 {
 	}
 	for today < len(inReal) {
 		//sumX and sumXY are already available for first output value
-		if today > startIdx - 1 {
+		if today > startIdx-1 {
 			tempValue2 := inReal[today-inTimePeriod]
 			sumXY += sumY - inTimePeriodF*tempValue2
 			sumY += inReal[today] - tempValue2
@@ -5293,7 +5293,7 @@ func Tsf(inReal []float64, inTimePeriod int) []float64 {
 	sumX := inTimePeriodF * (inTimePeriodF - 1.0) * 0.5
 	sumXSqr := inTimePeriodF * (inTimePeriodF - 1) * (2*inTimePeriodF - 1) / 6
 	divisor := sumX*sumX - inTimePeriodF*sumXSqr
-	//initialize values of sumY and sumXY over first (inTimePeriod) input values 
+	//initialize values of sumY and sumXY over first (inTimePeriod) input values
 	sumXY := 0.0
 	sumY := 0.0
 	i := inTimePeriod
@@ -5305,7 +5305,7 @@ func Tsf(inReal []float64, inTimePeriod int) []float64 {
 	}
 	for today < len(inReal) {
 		//sumX and sumXY are already available for first output value
-		if today > startIdx - 1 {
+		if today > startIdx-1 {
 			tempValue2 := inReal[today-inTimePeriod]
 			sumXY += sumY - inTimePeriodF*tempValue2
 			sumY += inReal[today] - tempValue2
@@ -5859,4 +5859,34 @@ func Sum(inReal []float64, inTimePeriod int) []float64 {
 	}
 
 	return outReal
+}
+
+// HeikinashiCandles - from candle values extracts heikinashi candle values.
+//
+// Returns highs, opens, closes and lows of the heikinashi candles (in this order).
+//
+//    NOTE: The number of Heikin-Ashi candles will always be one less than the number of provided candles, due to the fact
+//          that a previous candle is necessary to calculate the Heikin-Ashi candle, therefore the first provided candle is not considered
+//          as "current candle" in the algorithm, but only as "previous candle".
+func HeikinashiCandles(highs []float64, opens []float64, closes []float64, lows []float64) ([]float64, []float64, []float64, []float64) {
+	N := len(highs)
+
+	heikinHighs := make([]float64, N-1)
+	heikinOpens := make([]float64, N-1)
+	heikinCloses := make([]float64, N-1)
+	heikinLows := make([]float64, N-1)
+
+	heikinCurrent := 0
+	for currentCandle := 1; currentCandle < N; currentCandle++ {
+		previousCandle := currentCandle - 1
+
+		heikinHighs[heikinCurrent] = math.Max(highs[currentCandle], math.Max(opens[currentCandle], closes[currentCandle]))
+		heikinOpens[heikinCurrent] = (opens[previousCandle] + closes[previousCandle]) / 2
+		heikinCloses[heikinCurrent] = (highs[currentCandle] + opens[currentCandle] + closes[currentCandle] + lows[currentCandle]) / 4
+		heikinLows[heikinCurrent] = math.Min(highs[currentCandle], math.Min(opens[currentCandle], closes[currentCandle]))
+
+		heikinCurrent++
+	}
+
+	return heikinHighs, heikinOpens, heikinCloses, heikinLows
 }

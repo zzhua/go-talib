@@ -5890,3 +5890,17 @@ func HeikinashiCandles(highs []float64, opens []float64, closes []float64, lows 
 
 	return heikinHighs, heikinOpens, heikinCloses, heikinLows
 }
+
+// Hlc3 returns the Hlc3 values
+//
+//     NOTE: Every Hlc item is defined as follows : (high + low + close) / 3
+//           It is used as AvgPrice candle.
+func Hlc3(highs []float64, lows []float64, closes []float64) []float64 {
+	N := len(highs)
+	result := make([]float64, N)
+	for i := range highs {
+		result[i] = (highs[i] + lows[i] + closes[i]) / 3
+	}
+
+	return result
+}

@@ -42,3 +42,8 @@ func main() {
 ## License
 
 MIT License  - see LICENSE for more details
+
+# Contributors
+
+- [Markcheno](https://github.com/markcheno) 
+- [Alessandro Sanino AKA saniales](https://github.com/saniales)

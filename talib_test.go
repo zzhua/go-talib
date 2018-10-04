@@ -9,7 +9,6 @@ package talib
 import (
 	"fmt"
 	"math"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
@@ -17,6 +16,10 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func ok(t *testing.T, err error) {
@@ -121,6 +124,7 @@ print(' '.join([str(p) for p in result]).replace('nan','0.0'))`,
 	}
 }
 
+/*
 // Ensure that python and talib are installed and in the PATH
 func TestMain(m *testing.M) {
 	pyout, _ := exec.Command("python", "-c", "import talib; print('success')").Output()
@@ -130,6 +134,7 @@ func TestMain(m *testing.M) {
 	}
 	os.Exit(m.Run())
 }
+*/
 
 // Test all the functions
 
@@ -742,4 +747,24 @@ func TestCrossunder(t *testing.T) {
 	if Crossunder(series1, series2) == true {
 		t.Error("Crossunder: Not expected and found")
 	}
+}
+
+func TestGroupCandles(t *testing.T) {
+	testHigh := []float64{1, 2, 3, 4, 4.1, 4.5, 4, 2, 5, 3.2}
+	testOpens := []float64{0.5, 0.3, 1, 3.1, 3.9, 2.1, 3, 0.9, 1.4, 3.2}
+	testCloses := []float64{0.3, 1, 3, 4, 2.1, 3, 1, 1.5, 3.2, 1}
+	testLows := []float64{0.1, 0.3, 2, 4, 1, 2, 0.5, 0.9, 1, 1}
+
+	expGroupedHighs := []float64{2, 4, 4.5, 4, 5}
+	expGroupedOpens := []float64{0.5, 1, 3.9, 3, 1.4}
+	expGroupedCloses := []float64{1, 4, 3, 1.5, 1}
+	expGroupedLows := []float64{0.1, 2, 1, 0.5, 1}
+
+	testGroupedHighs, testGroupedOpens, testGroupedCloses, testGroupedLows, err := GroupCandles(testHigh, testOpens, testCloses, testLows, 2)
+	require.NoError(t, err, "Unexpected error")
+
+	assert.EqualValues(t, expGroupedHighs, testGroupedHighs, "Highs not expected")
+	assert.EqualValues(t, expGroupedOpens, testGroupedOpens, "Opens not expected")
+	assert.EqualValues(t, expGroupedCloses, testGroupedCloses, "Closes not expected")
+	assert.EqualValues(t, expGroupedLows, testGroupedLows, "Lows not expected")
 }

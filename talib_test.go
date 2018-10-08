@@ -9,6 +9,7 @@ package talib
 import (
 	"fmt"
 	"math"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
@@ -124,7 +125,6 @@ print(' '.join([str(p) for p in result]).replace('nan','0.0'))`,
 	}
 }
 
-/*
 // Ensure that python and talib are installed and in the PATH
 func TestMain(m *testing.M) {
 	pyout, _ := exec.Command("python", "-c", "import talib; print('success')").Output()
@@ -134,7 +134,6 @@ func TestMain(m *testing.M) {
 	}
 	os.Exit(m.Run())
 }
-*/
 
 // Test all the functions
 

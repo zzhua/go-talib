@@ -6,7 +6,10 @@ Licensed under terms of MIT license (see LICENSE)
 // Package talib is a pure Go port of TA-Lib (http://ta-lib.org) Technical Analysis Library
 package talib
 
-import "math"
+import (
+	"errors"
+	"math"
+)
 
 // MaType - Moving average type
 type MaType int
@@ -5871,21 +5874,18 @@ func Sum(inReal []float64, inTimePeriod int) []float64 {
 func HeikinashiCandles(highs []float64, opens []float64, closes []float64, lows []float64) ([]float64, []float64, []float64, []float64) {
 	N := len(highs)
 
-	heikinHighs := make([]float64, N-1)
-	heikinOpens := make([]float64, N-1)
-	heikinCloses := make([]float64, N-1)
-	heikinLows := make([]float64, N-1)
+	heikinHighs := make([]float64, N)
+	heikinOpens := make([]float64, N)
+	heikinCloses := make([]float64, N)
+	heikinLows := make([]float64, N)
 
-	heikinCurrent := 0
 	for currentCandle := 1; currentCandle < N; currentCandle++ {
 		previousCandle := currentCandle - 1
 
-		heikinHighs[heikinCurrent] = math.Max(highs[currentCandle], math.Max(opens[currentCandle], closes[currentCandle]))
-		heikinOpens[heikinCurrent] = (opens[previousCandle] + closes[previousCandle]) / 2
-		heikinCloses[heikinCurrent] = (highs[currentCandle] + opens[currentCandle] + closes[currentCandle] + lows[currentCandle]) / 4
-		heikinLows[heikinCurrent] = math.Min(highs[currentCandle], math.Min(opens[currentCandle], closes[currentCandle]))
-
-		heikinCurrent++
+		heikinHighs[currentCandle] = math.Max(highs[currentCandle], math.Max(opens[currentCandle], closes[currentCandle]))
+		heikinOpens[currentCandle] = (opens[previousCandle] + closes[previousCandle]) / 2
+		heikinCloses[currentCandle] = (highs[currentCandle] + opens[currentCandle] + closes[currentCandle] + lows[currentCandle]) / 4
+		heikinLows[currentCandle] = math.Min(highs[currentCandle], math.Min(opens[currentCandle], closes[currentCandle]))
 	}
 
 	return heikinHighs, heikinOpens, heikinCloses, heikinLows
@@ -5915,18 +5915,75 @@ func Crossover(series1 []float64, series2 []float64) bool {
 	if len(series1) < 3 || len(series2) < 3 {
 		return false
 	}
-	return series1[2] >= series2[2] && series1[1] <= series2[1]
+
+	N := len(series1)
+
+	return series1[N-2] <= series2[N-2] && series1[N-1] > series2[N-1]
 }
 
 // Crossunder returns true if series1 is crossing under series2.
 //
 //    NOTE: Usually this is used with Media Average Series to check if it crosses for sell signals.
-//          It assumes first values are the most recent.
-//          The crossunder function does not use most recent value, since usually it's not a complete candle.
-//          The second recent values and the previous are used, instead.
 func Crossunder(series1 []float64, series2 []float64) bool {
 	if len(series1) < 3 || len(series2) < 3 {
 		return false
 	}
-	return series1[1] >= series2[1] && series1[2] <= series2[2]
+
+	N := len(series1)
+
+	return series1[N-1] <= series2[N-1] && series1[N-2] > series2[N-2]
+}
+
+// GroupCandles groups a set of candles in another set of candles, basing on a grouping factor.
+//
+// This is pretty useful if you want to transform, for example, 15min candles into 1h candles using same data.
+//
+// This avoid calling multiple times the exchange for multiple contexts.
+//
+// Example:
+//     To transform 15 minute candles in 30 minutes candles you have a grouping factor = 2
+//
+//     To transform 15 minute candles in 1 hour candles you have a grouping factor = 4
+//
+//     To transform 30 minute candles in 1 hour candles you have a grouping factor = 2
+func GroupCandles(highs []float64, opens []float64, closes []float64, lows []float64, groupingFactor int) ([]float64, []float64, []float64, []float64, error) {
+	N := len(highs)
+	if groupingFactor == 0 {
+		return nil, nil, nil, nil, errors.New("Grouping factor must be > 0")
+	} else if groupingFactor == 1 {
+		return highs, opens, closes, lows, nil // no need to group in this case, return the parameters.
+	}
+	if N%groupingFactor > 0 {
+		return nil, nil, nil, nil, errors.New("Cannot group properly, need a groupingFactor which is a factor of the number of candles")
+	}
+
+	groupedN := N / groupingFactor
+
+	groupedHighs := make([]float64, groupedN)
+	groupedOpens := make([]float64, groupedN)
+	groupedCloses := make([]float64, groupedN)
+	groupedLows := make([]float64, groupedN)
+
+	lastOfCurrentGroup := groupingFactor - 1
+
+	k := 0
+	for i := 0; i < N; i += groupingFactor { // scan all param candles
+		groupedOpens[k] = opens[i]
+		groupedCloses[k] = closes[i+lastOfCurrentGroup]
+
+		groupedHighs[k] = highs[i]
+		groupedLows[k] = lows[i]
+
+		endOfCurrentGroup := i + lastOfCurrentGroup
+		for j := i + 1; j <= endOfCurrentGroup; j++ { // group high lows candles here
+			if lows[j] < groupedLows[k] {
+				groupedLows[k] = lows[j]
+			}
+			if highs[j] > groupedHighs[k] {
+				groupedHighs[k] = highs[j]
+			}
+		}
+		k++
+	}
+	return groupedHighs, groupedOpens, groupedCloses, groupedLows, nil
 }
